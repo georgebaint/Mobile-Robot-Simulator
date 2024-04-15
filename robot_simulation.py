@@ -47,41 +47,65 @@ class Robot(pygame.sprite.Sprite):
             self.pos = pygame.math.Vector2(new_x, new_y)
             self.angle = new_angle % 360  # Normalize angle
 
+            self.robot_rotation() 
         # print(f"DEBUG: NEW_X = {new_x}, NEW_Y = {new_y}, ANGLE = {self.angle}")
-        self.robot_rotation() 
 
     def robot_rotation(self):
-        # Ensure image rotation matches the angle
+        # Ensures image rotates with the angle
         self.image = pygame.transform.rotate(self.base_robot_image, -self.angle)
-        self.rect = self.image.get_rect(center=self.pos)                 
+        self.rect = self.image.get_rect(center=self.pos)    
 
     def user_input(self):
-        self.right_motor_speed = 0
-        self.left_motor_speed = 0
-
         keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_w]:
-            self.left_motor_speed += -self.speed
-
-        if keys[pygame.K_s]:
-            self.left_motor_speed += self.speed
-
+        
+        if keys[pygame.K_q]:
+            self.left_motor_speed = max(-ROBOT_SPEED, min(ROBOT_SPEED, self.left_motor_speed + 0.2))  # Increase speed of left motor with Q
         if keys[pygame.K_a]:
-            self.right_motor_speed += -self.speed
-
-        if keys[pygame.K_d]:
-            self.right_motor_speed += self.speed
+            self.left_motor_speed = max(-ROBOT_SPEED, min(ROBOT_SPEED, self.left_motor_speed - 0.2))  # Decrease speed of left motor with A
+        if keys[pygame.K_p]:
+            self.right_motor_speed = max(-ROBOT_SPEED, min(ROBOT_SPEED, self.right_motor_speed + 0.2))  # Increase speed of right motor with P
+        if keys[pygame.K_l]:
+            self.right_motor_speed = max(-ROBOT_SPEED, min(ROBOT_SPEED, self.right_motor_speed - 0.2))  # Decrease speed of right motor with L
+        
+        # print(f"DEBUG: Left Motor Speed= {self.left_motor_speed}, Right Motor Speed= {self.right_motor_speed}")
 
         self.calculate_forward_kinematics()
 
-        print(f"DEBUG: Left Motor Speed= {self.left_motor_speed}, Right Motor Speed= {self.right_motor_speed}")
+
+    # def user_input(self):
+    #     self.right_motor_speed = 0
+    #     self.left_motor_speed = 0
+
+    #     keys = pygame.key.get_pressed()
+
+    #     if keys[pygame.K_w]:
+    #         self.left_motor_speed += -self.speed
+
+    #     if keys[pygame.K_s]:
+    #         self.left_motor_speed += self.speed
+
+    #     if keys[pygame.K_a]:
+    #         self.right_motor_speed += -self.speed
+
+    #     if keys[pygame.K_d]:
+    #         self.right_motor_speed += self.speed
+
+    #     self.calculate_forward_kinematics()
+
+    #     print(f"DEBUG: Left Motor Speed= {self.left_motor_speed}, Right Motor Speed= {self.right_motor_speed}")
 
 
     def update(self):
         self.user_input()
         self.robot_rotation()
         self.rect.center = self.pos
+
+
+def draw_text(screen, text, position, font_size=24, color='red'):
+    # A function that draws the speed of each motor
+    font = pygame.font.Font(None, font_size)  # None uses the default font, set font path for custom font
+    text_surface = font.render(text, True, color)  # True means anti-aliased text.
+    screen.blit(text_surface, position)
 
 if __name__ == "__main__":
     pygame.init()
@@ -111,6 +135,11 @@ if __name__ == "__main__":
 
         pygame.draw.circle(screen, "blue", (int(robot.pos.x), int(robot.pos.y)), robot.radius, width=2)
         pygame.draw.rect(screen, "green", robot.rect, width=2)
+
+
+        # Display the current wheel speeds
+        draw_text(screen, f"Left Wheel Speed: {robot.left_motor_speed:.2f}", (10, 10))
+        draw_text(screen, f"Right Wheel Speed: {robot.right_motor_speed:.2f}", (10, 40))
 
         pygame.display.update()
         clock.tick(FPS)
