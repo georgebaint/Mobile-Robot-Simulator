@@ -2,6 +2,11 @@ import pygame
 from sys import exit
 import math
 from settings import *
+import random
+import cv2 as cv
+import numpy as np
+from matplotlib import pyplot as plt
+
 
 
 class Robot(pygame.sprite.Sprite):
@@ -52,6 +57,25 @@ class Robot(pygame.sprite.Sprite):
         self.move()
         self.robot_rotation()
 
+    def add_sensors(self, screen):
+        num_sensors = 12
+        sensor_length = 30  # Adjust based on desired sensor reach
+        tab20 = plt.get_cmap("tab20").colors
+        for i in range(num_sensors):
+            angle = math.radians((360 / num_sensors) * i + self.angle)
+            end_pos = (
+                self.pos.x + (self.radius + sensor_length) * math.cos(angle),
+                self.pos.y + (self.radius + sensor_length) * math.sin(angle)
+            )
+            start_pos = (
+                self.pos.x + self.radius * math.cos(angle),
+                self.pos.y + self.radius * math.sin(angle)
+            )
+
+            # Convert color from float (0.0-1.0) to int (0-255)
+            color = tuple(int(255 * x) for x in tab20[i % len(tab20)])
+            pygame.draw.line(screen, color, start_pos, end_pos, 2)        
+
 
 if __name__ == "__main__":
     pygame.init()
@@ -61,9 +85,17 @@ if __name__ == "__main__":
     pygame.display.set_caption('Mobile Robot Simulation')
     clock = pygame.time.Clock()
 
+    imgray = cv.cvtColor(cv.imread('images/maze.png'), cv.COLOR_BGR2GRAY)
+    _, t_maze = cv.threshold(imgray, 127, 255, cv.THRESH_BINARY)
+
+    t_maze_surface = pygame.surfarray.make_surface(t_maze.swapaxes(0, 1))
+
     # Load images
     background = pygame.transform.scale(pygame.image.load("images/background.jpg").convert(), (WIDTH, HEIGHT))
-    maze_image = pygame.transform.scale(pygame.image.load("images/maze.png").convert_alpha(), (WIDTH, HEIGHT))
+    maze_mask = pygame.transform.scale(t_maze_surface.convert_alpha(), (WIDTH, HEIGHT))
+
+
+
 
     robot = Robot()
 
@@ -76,11 +108,12 @@ if __name__ == "__main__":
 
         
         screen.blit(background, (0,0))
-        background.blit(maze_image, (0,0))
+        background.blit(maze_mask, (0,0))
 
 
         screen.blit(robot.image, robot.rect)
         robot.update()
+        robot.add_sensors(screen)
 
         pygame.draw.circle(screen, "blue", (int(robot.pos.x), int(robot.pos.y)), robot.radius, width=2)
         pygame.draw.rect(screen, "green", robot.rect, width=2)
