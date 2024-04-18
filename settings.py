@@ -1,10 +1,10 @@
 # World setting
 WIDTH = 1280
 HEIGHT = 720
-FPS = 30
+FPS = 60
 
 # Robot settings
 ROBOT_START_X = 300
 ROBOT_START_Y = 200
 ROBOT_SIZE = 0.5
-ROBOT_SPEED = 5
+ROBOT_SPEED = 3
