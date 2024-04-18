@@ -71,30 +71,6 @@ class Robot(pygame.sprite.Sprite):
 
         self.calculate_forward_kinematics()
 
-
-    # def user_input(self):
-    #     self.right_motor_speed = 0
-    #     self.left_motor_speed = 0
-
-    #     keys = pygame.key.get_pressed()
-
-    #     if keys[pygame.K_w]:
-    #         self.left_motor_speed += -self.speed
-
-    #     if keys[pygame.K_s]:
-    #         self.left_motor_speed += self.speed
-
-    #     if keys[pygame.K_a]:
-    #         self.right_motor_speed += -self.speed
-
-    #     if keys[pygame.K_d]:
-    #         self.right_motor_speed += self.speed
-
-    #     self.calculate_forward_kinematics()
-
-    #     print(f"DEBUG: Left Motor Speed= {self.left_motor_speed}, Right Motor Speed= {self.right_motor_speed}")
-
-
     def update(self):
         self.user_input()
         self.robot_rotation()
@@ -135,7 +111,6 @@ if __name__ == "__main__":
 
         pygame.draw.circle(screen, "blue", (int(robot.pos.x), int(robot.pos.y)), robot.radius, width=2)
         pygame.draw.rect(screen, "green", robot.rect, width=2)
-
 
         # Display the current wheel speeds
         draw_text(screen, f"Left Wheel Speed: {robot.left_motor_speed:.2f}", (10, 10))
