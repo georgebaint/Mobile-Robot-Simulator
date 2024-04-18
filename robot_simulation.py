@@ -2,7 +2,12 @@ import pygame
 from sys import exit
 import math
 from settings import *
+import random
+import cv2 as cv
 import numpy as np
+from matplotlib import pyplot as plt
+
+
 
 class Robot(pygame.sprite.Sprite):
     def __init__(self):
@@ -16,6 +21,40 @@ class Robot(pygame.sprite.Sprite):
         # Define the radius of the circular hitbox (eg half the width of the image)
         self.radius = self.base_robot_image.get_width() // 2
         self.rect = self.base_robot_image.get_rect(center=self.pos)
+        self.angle = 0
+
+        # Parameters for motors
+        self.right_motor_speed = 0
+        self.left_motor_speed = 0
+        self.motor_offset = self.radius*2
+
+    def calculate_forward_kinematics(self):
+        dt = 1  # Assuming the delta time is 1 frame.
+        omega = (self.right_motor_speed - self.left_motor_speed) / self.motor_offset
+
+        if omega == 0:  # Straight movement Exception
+            # Adjust angle by subtracting 90 degrees for correct orientation 
+            # Needs to be done so wheels are on the side of the robot since on default state it looks UP (90degrees) and not on the RIGHT(0degrees)
+            adjusted_angle = math.radians(self.angle - 90)
+            new_x = self.pos.x + math.cos(adjusted_angle) * (self.right_motor_speed + self.left_motor_speed) / 2 * dt
+            new_y = self.pos.y + math.sin(adjusted_angle) * (self.right_motor_speed + self.left_motor_speed) / 2 * dt
+            self.pos = pygame.math.Vector2(new_x, new_y)
+        else:
+            R = 1 / 2 * (self.left_motor_speed + self.right_motor_speed) / omega
+            # Same adjustment for ICC calculations
+            adjusted_angle = math.radians(self.angle - 90)
+            ICC_x = self.pos.x - R * math.sin(adjusted_angle)
+            ICC_y = self.pos.y + R * math.cos(adjusted_angle)
+
+            new_x = math.cos(omega * dt) * (self.pos.x - ICC_x) - math.sin(omega * dt) * (self.pos.y - ICC_y) + ICC_x
+            new_y = math.sin(omega * dt) * (self.pos.x - ICC_x) + math.cos(omega * dt) * (self.pos.y - ICC_y) + ICC_y
+            new_angle = self.angle + math.degrees(omega * dt)
+
+            self.pos = pygame.math.Vector2(new_x, new_y)
+            self.angle = new_angle % 360  # Normalize angle
+
+            self.robot_rotation() 
+        # print(f"DEBUG: NEW_X = {new_x}, NEW_Y = {new_y}, ANGLE = {self.angle}")
 
         # Parameters for motors
         self.right_motor_speed = 0
@@ -106,6 +145,68 @@ def draw_text(screen, text, position, font_size=24, color='red'):
     font = pygame.font.Font(None, font_size)  # None uses the default font, set font path for custom font
     text_surface = font.render(text, True, color)  # True means anti-aliased text.
     screen.blit(text_surface, position)
+    def is_wall(self, x, y, maze_array):
+        """
+        Checks if the given x, y position is a wall in the maze.
+
+        Args:
+        x (int): The x-coordinate in the maze.
+        y (int): The y-coordinate in the maze.
+        maze_array (numpy.ndarray): The array representing the maze, where walls are 0 (black).
+
+        Returns:
+        bool: True if the position is a wall, False otherwise.
+        """
+        # Ensure x and y are within the bounds of the maze array
+        if 0 <= x < maze_array.shape[1] and 0 <= y < maze_array.shape[0]:
+            return maze_array[y][x] == 0
+        else:
+            # If out of bounds, treat as a wall to prevent errors
+            return True
+
+
+    def add_sensors(self, screen, maze_array):
+        num_sensors = 12
+        max_sensor_length = 200
+        tab20 = plt.get_cmap("tab20").colors
+
+        for i in range(num_sensors):
+            angle = math.radians((360 / num_sensors) * i + self.angle)
+            sensor_hit_wall = False
+            for distance in range(self.radius, self.radius + max_sensor_length):
+                end_x = int(self.pos.x + distance * math.cos(angle))
+                end_y = int(self.pos.y + distance * math.sin(angle))
+
+                if self.is_wall(end_x, end_y, maze_array):
+                    sensor_hit_wall = True
+                    break
+            
+            if not sensor_hit_wall:
+                # If no wall is hit, the sensor extends to its maximum length
+                distance = self.radius + max_sensor_length
+                
+
+            # Sensor line start and end positions
+            start_pos = (
+                int(self.pos.x + self.radius * math.cos(angle)),
+                int(self.pos.y + self.radius * math.sin(angle))
+            )
+            end_pos = (
+                int(self.pos.x + distance * math.cos(angle)),
+                int(self.pos.y + distance * math.sin(angle))
+            )
+
+            color = tuple(int(255 * x) for x in tab20[i % len(tab20)])
+            pygame.draw.line(screen, color, start_pos, end_pos, 2)      
+
+def get_pixel_map(image_path, threshold=127):
+    # Load the image using OpenCV
+    image = cv.imread(image_path, cv.IMREAD_GRAYSCALE)
+    # Apply a binary threshold to distinguish walls from free space
+    _, binary_image = cv.threshold(image, threshold, 255, cv.THRESH_BINARY)
+    # Convert binary image to match the display dimensions
+    binary_image = cv.resize(binary_image, (WIDTH, HEIGHT))
+    return binary_image
 
 if __name__ == "__main__":
     pygame.init()
@@ -116,8 +217,10 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
 
     # Load images
-    background = pygame.transform.scale(pygame.image.load("images/background.jpg").convert(), (WIDTH, HEIGHT))
-    maze_image = pygame.transform.scale(pygame.image.load("images/maze.png").convert_alpha(), (WIDTH, HEIGHT))
+    background = pygame.image.load("images/background.jpg").convert()
+    background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+    maze_image = get_pixel_map("images/maze.png")  # Get binary pixel map of the maze
+
 
     robot = Robot()
 
@@ -129,10 +232,16 @@ if __name__ == "__main__":
                 exit()
         
         screen.blit(background, (0,0))
-        background.blit(maze_image, (0,0))
-        screen.blit(robot.image, robot.rect)
+
+        # Optionally display the maze for debugging (convert numpy array to surface)
+        maze_surface = pygame.surfarray.make_surface(maze_image.swapaxes(0, 1))
+        screen.blit(maze_surface, (0,0))
+        
         robot.update()
 
+        screen.blit(robot.image, robot.rect)
+        robot.add_sensors(screen, maze_image)
+        screen.blit(robot.image, robot.rect)
         pygame.draw.circle(screen, "blue", (int(robot.pos.x), int(robot.pos.y)), robot.radius, width=2)
         pygame.draw.rect(screen, "green", robot.rect, width=2)
 
