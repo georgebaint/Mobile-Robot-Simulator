@@ -20,7 +20,7 @@ class Robot(pygame.sprite.Sprite):
         self.radius = self.base_robot_image.get_width() // 2
         self.rect = self.base_robot_image.get_rect(center=self.pos)
         self.angle = 0
-        self.font = pygame.font.Font(None, 24)
+        
 
     def robot_rotation(self):
         if self.velocity_x != 0 or self.velocity_y != 0:
@@ -84,6 +84,7 @@ class Robot(pygame.sprite.Sprite):
         num_sensors = 12
         max_sensor_length = 200
         tab20 = plt.get_cmap("tab20").colors
+        font = pygame.font.Font(None, 24)
 
         for i in range(num_sensors):
             angle = math.radians((360 / num_sensors) * i + self.angle)
@@ -101,7 +102,7 @@ class Robot(pygame.sprite.Sprite):
             pygame.draw.line(screen, color, start_pos, end_pos, 2)
 
             # Display the distance
-            distance_text = self.font.render(f"{distance - self.radius}", True, (255, 0, 255))
+            distance_text = font.render(f"{distance - self.radius}", True, (255, 0, 255))
             screen.blit(distance_text, end_pos)   
 
 def get_pixel_map(image_path, threshold=127):
