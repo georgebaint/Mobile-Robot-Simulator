@@ -200,7 +200,7 @@ def get_pixel_map(image_path, threshold=127):
     binary_image = cv.resize(binary_image, (WIDTH, HEIGHT))
     return binary_image
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     pygame.init()
 
     # Creating the window
