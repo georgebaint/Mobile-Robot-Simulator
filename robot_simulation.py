@@ -20,6 +20,7 @@ class Robot(pygame.sprite.Sprite):
         self.radius = self.base_robot_image.get_width() // 2
         self.rect = self.base_robot_image.get_rect(center=self.pos)
         self.angle = 0
+        self.font = pygame.font.Font(None, 24)
 
     def robot_rotation(self):
         if self.velocity_x != 0 or self.velocity_y != 0:
@@ -86,32 +87,22 @@ class Robot(pygame.sprite.Sprite):
 
         for i in range(num_sensors):
             angle = math.radians((360 / num_sensors) * i + self.angle)
-            sensor_hit_wall = False
             for distance in range(self.radius, self.radius + max_sensor_length):
                 end_x = int(self.pos.x + distance * math.cos(angle))
                 end_y = int(self.pos.y + distance * math.sin(angle))
-
                 if self.is_wall(end_x, end_y, maze_array):
-                    sensor_hit_wall = True
                     break
-            
-            if not sensor_hit_wall:
-                # If no wall is hit, the sensor extends to its maximum length
-                distance = self.radius + max_sensor_length
-                
+            else:
+                distance = self.radius + max_sensor_length  # Ensure distance is set if no wall is hit
 
-            # Sensor line start and end positions
-            start_pos = (
-                int(self.pos.x + self.radius * math.cos(angle)),
-                int(self.pos.y + self.radius * math.sin(angle))
-            )
-            end_pos = (
-                int(self.pos.x + distance * math.cos(angle)),
-                int(self.pos.y + distance * math.sin(angle))
-            )
-
+            start_pos = (int(self.pos.x + self.radius * math.cos(angle)), int(self.pos.y + self.radius * math.sin(angle)))
+            end_pos = (int(self.pos.x + distance * math.cos(angle)), int(self.pos.y + distance * math.sin(angle)))
             color = tuple(int(255 * x) for x in tab20[i % len(tab20)])
-            pygame.draw.line(screen, color, start_pos, end_pos, 2)      
+            pygame.draw.line(screen, color, start_pos, end_pos, 2)
+
+            # Display the distance
+            distance_text = self.font.render(f"{distance - self.radius}", True, (255, 0, 255))
+            screen.blit(distance_text, end_pos)   
 
 def get_pixel_map(image_path, threshold=127):
     # Load the image using OpenCV
