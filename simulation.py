@@ -26,13 +26,16 @@ class Simulation(pygame.sprite.Sprite):
 
     def update(self):
         user_input(self.agent)
+        
+        self.agent.calculate_forward_kinematics()
+
         self.agent.robot_rotation()
         self.agent.rect.center = self.agent.pos
 
         screen.blit(self.agent.image, self.agent.rect)
         self.agent.run_sensors(screen)
         screen.blit(self.agent.image, self.agent.rect)
-        pygame.draw.circle(screen, "blue", (int(self.agent.pos.x), int(self.agent.pos.y)), self.agent.radius, width=2)
+        pygame.draw.circle(screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.agent.pos.x), int(self.agent.pos.y)), self.agent.radius, width=2)
         pygame.draw.rect(screen, "green", self.agent.rect, width=2)
 
         # Display the current wheel speeds

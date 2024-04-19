@@ -15,9 +15,6 @@ def user_input(agent):
     
     # print(f"DEBUG: Left Motor Speed= {self.left_motor_speed}, Right Motor Speed= {self.right_motor_speed}")
 
-    agent.calculate_forward_kinematics()
-
-
 # def user_input(self):
 #     self.right_motor_speed = 0
 #     self.left_motor_speed = 0
