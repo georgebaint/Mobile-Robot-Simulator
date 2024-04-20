@@ -24,15 +24,23 @@ class Environment:
             # If out of bounds, treat as a wall to prevent errors
             return True
 
+
+    # def detect_collision2(self, old_pos, new_pos):
+
+
     def detect_collision(self, old_pos, new_pos):
         circle = np.zeros((HEIGHT, WIDTH), dtype='uint8')
         circle = cv.circle(circle, (int(new_pos[0]), int(new_pos[1])), ROBOT_RADIUS, 255, -1)
 
-        print(new_pos)
+        # print(new_pos)
 
-        inter = circle & self.maze_array        
-        coords = np.argwhere(inter > 0)
+        inter = circle & self.maze_array       
+        # print(f"Circle: {circle}")
+        # print(f": {circle}") 
 
+        coords = np.argwhere(inter != 0)
+
+        # print(self.maze_array)
         if coords.size == 0:
             return new_pos, False
 

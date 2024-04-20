@@ -62,7 +62,7 @@ class Agent:
         old_pos = (self.pos.x, self.pos.y)
 
         dt = 1  # Assuming the delta time is 1 frame.
-        omega = (self.right_motor_speed - self.left_motor_speed) / self.motor_offset
+        omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
 
         if omega == 0:  # Straight movement Exception
             # Adjust angle by subtracting 90 degrees for correct orientation 
@@ -86,9 +86,11 @@ class Agent:
             self.angle = new_angle % 360  # Normalize angle
 
             self.robot_rotation() 
-
+        
         new_pos = (self.pos.x, self.pos.y)
         new_pos, self.collision = self.environment.detect_collision(old_pos, new_pos)
+
+        # print(self.collision)
         # print(f"DEBUG: NEW_X = {new_x}, NEW_Y = {new_y}, ANGLE = {self.angle}")
 
     def robot_rotation(self):

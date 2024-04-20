@@ -29,7 +29,7 @@ class Simulation(pygame.sprite.Sprite):
         
         self.agent.calculate_forward_kinematics()
 
-        self.agent.robot_rotation()
+        # self.agent.robot_rotation()
         self.agent.rect.center = self.agent.pos
 
         screen.blit(self.agent.image, self.agent.rect)
