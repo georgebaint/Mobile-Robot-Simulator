@@ -2,6 +2,7 @@ import pygame
 import numpy as np 
 import cv2 as cv
 from settings import *
+import matplotlib.pyplot as plt
 
 class Environment:
     def __init__(self):       
@@ -24,11 +25,10 @@ class Environment:
             # If out of bounds, treat as a wall to prevent errors
             return True
 
-    def detect_collision(self, old_pos, new_pos):
+    def detect_collision(self, old_pos, new_pos, take_snapshot):
+
         circle = np.zeros((HEIGHT, WIDTH), dtype='uint8')
         circle = cv.circle(circle, (int(new_pos[0]), int(new_pos[1])), ROBOT_RADIUS, 255, -1)
-
-        print(new_pos)
 
         inter = circle & self.maze_array        
         coords = np.argwhere(inter > 0)
@@ -40,6 +40,12 @@ class Environment:
         xs = coords[:, 1]
 
         rng = (np.max(xs) - np.min(xs), np.max(ys) - np.min(ys))
+
+        if take_snapshot:
+            print(rng)
+
+            plt.imshow(self.maze_array ^ circle, cmap='gray')
+            plt.show()
 
         # vertical collision
         if rng[0] > rng[1]:
