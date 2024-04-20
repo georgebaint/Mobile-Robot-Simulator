@@ -1,5 +1,6 @@
 import pygame
 from settings import *
+import sys
 
 def user_input(agent):
     keys = pygame.key.get_pressed()
@@ -20,15 +21,20 @@ def user_input(agent):
         agent.left_motor_speed = max(-ROBOT_SPEED, agent.left_motor_speed - 0.2) 
         agent.right_motor_speed = max(-ROBOT_SPEED, agent.right_motor_speed - 0.2)
     if keys[pygame.K_d]:
-        agent.left_motor_speed = -1
-        agent.right_motor_speed = 1
+        agent.left_motor_speed = min(ROBOT_SPEED, agent.left_motor_speed + 0.2)
+        agent.right_motor_speed = min(ROBOT_SPEED, agent.right_motor_speed - 0.2)
     if keys[pygame.K_g]:
-        agent.left_motor_speed = 1
-        agent.right_motor_speed = -1
+        agent.left_motor_speed = min(ROBOT_SPEED, agent.left_motor_speed - 0.2)
+        agent.right_motor_speed = min(ROBOT_SPEED, agent.right_motor_speed + 0.2)
     if keys[pygame.K_v]:
         agent.left_motor_speed = 0
         agent.right_motor_speed = 0
     
+    if keys[pygame.K_ESCAPE]:
+        pygame.display.quit()
+        pygame.quit()
+        sys.exit()
+
     take_snapshot = False
     if keys[pygame.K_n]:
         take_snapshot = True

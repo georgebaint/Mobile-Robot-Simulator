@@ -47,15 +47,18 @@ class Environment:
             plt.imshow(self.maze_array ^ circle, cmap='gray')
             plt.show()
 
+        #return if collision => full stop
+        #return old_pos, True
+
         # vertical collision
         if rng[0] > rng[1]:
             adj_pos = (new_pos[0], old_pos[1])
-            return old_pos, True
+            return adj_pos, True
 
         # horizontal collision
         if rng[1] > rng[0]:
             adj_pos = (old_pos[0], new_pos[1])
             #return adj_pos, True
-            return old_pos, True
+            return adj_pos, True
         
-        return old_pos, True
+        return new_pos, False

@@ -89,6 +89,7 @@ class Agent:
 
         new_pos = (self.pos.x, self.pos.y)
         new_pos, self.collision = self.environment.detect_collision(old_pos, new_pos, take_snapshot)
+        self.pos = pygame.math.Vector2(new_pos)
         # print(f"DEBUG: NEW_X = {new_x}, NEW_Y = {new_y}, ANGLE = {self.angle}")
 
     def robot_rotation(self):
