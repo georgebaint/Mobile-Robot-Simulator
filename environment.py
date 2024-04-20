@@ -37,10 +37,20 @@ class Environment:
         if coords.size == 0:
             return new_pos, False
 
-        footprint = np.zeros((HEIGHT, WIDTH), dtype='int')
-        footprint[coords[:, 0], coords[:, 1]] = 1
+        #check if the motion is outward
+        circle_old = np.zeros((HEIGHT, WIDTH), dtype='uint8')
+        circle_old = cv.circle(circle_old, (int(old_pos[0]), int(old_pos[1])), ROBOT_RADIUS, 255, -1)
+        inter_old = circle_old & self.maze_array
+
+        inter = inter.astype('bool')
+        inter_old = inter_old.astype('bool')
+
+        if (np.sum(inter) <= np.sum(inter_old)):
+            return new_pos, False
 
         #if 2 points of contact => full stop
+        footprint = np.zeros((HEIGHT, WIDTH), dtype='int')
+        footprint[coords[:, 0], coords[:, 1]] = 1
         labeled, num_labels = scipy.ndimage.label(footprint, structure=np.ones((3, 3)))
 
         if num_labels > 1:
