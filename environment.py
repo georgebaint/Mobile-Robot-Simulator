@@ -72,4 +72,4 @@ class Environment:
             #return adj_pos, True
             return adj_pos, True
         
-        return old_pos, True
+        return new_pos, True
