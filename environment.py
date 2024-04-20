@@ -3,6 +3,7 @@ import numpy as np
 import cv2 as cv
 from settings import *
 import matplotlib.pyplot as plt
+import scipy
 
 class Environment:
     def __init__(self):       
@@ -36,6 +37,16 @@ class Environment:
         if coords.size == 0:
             return new_pos, False
 
+        footprint = np.zeros((HEIGHT, WIDTH), dtype='int')
+        footprint[coords[:, 0], coords[:, 1]] = 1
+
+        #if 2 points of contact => full stop
+        labeled, num_labels = scipy.ndimage.label(footprint, structure=np.ones((3, 3)))
+
+        if num_labels > 1:
+            #print(set(labeled.flatten())) 
+            return old_pos, True
+
         ys = coords[:, 0]
         xs = coords[:, 1]
 
@@ -47,7 +58,7 @@ class Environment:
             plt.imshow(self.maze_array ^ circle, cmap='gray')
             plt.show()
 
-        #return if collision => full stop
+        #return if any collision => full stop
         #return old_pos, True
 
         # vertical collision
