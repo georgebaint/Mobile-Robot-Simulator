@@ -27,7 +27,7 @@ class Simulation(pygame.sprite.Sprite):
     def update(self):
         user_input(self.agent)
         
-        self.agent.calculate_forward_kinematics()
+        self.agent.calculate_forward_kinematics(take_snapshot)
 
         # self.agent.robot_rotation()
         self.agent.rect.center = self.agent.pos

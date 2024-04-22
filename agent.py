@@ -58,7 +58,7 @@ class Agent:
     def run_sensors(self, screen):
         self.sensors.run(self, screen)
     
-    def calculate_forward_kinematics(self):
+    def calculate_forward_kinematics(self, take_snapshot):
         old_pos = (self.pos.x, self.pos.y)
 
         dt = 1  # Assuming the delta time is 1 frame.
@@ -88,9 +88,8 @@ class Agent:
             self.robot_rotation() 
         
         new_pos = (self.pos.x, self.pos.y)
-        new_pos, self.collision = self.environment.detect_collision(old_pos, new_pos)
-
-        # print(self.collision)
+        new_pos, self.collision = self.environment.detect_collision(old_pos, new_pos, take_snapshot)
+        self.pos = pygame.math.Vector2(new_pos)
         # print(f"DEBUG: NEW_X = {new_x}, NEW_Y = {new_y}, ANGLE = {self.angle}")
 
     def robot_rotation(self):
