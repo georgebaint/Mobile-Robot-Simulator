@@ -42,7 +42,7 @@ class Agent:
         self.angle = 0
         self.collision = False
 
-        self.speed = ROBOT_SPEED
+        self.speed = ROBOT_MAX_SPEED
         # Define the radius of the circular hitbox (eg half the width of the image)
         self.radius = self.base_robot_image.get_width() // 2
         self.rect = self.base_robot_image.get_rect(center=self.pos)
