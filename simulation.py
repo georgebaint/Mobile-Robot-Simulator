@@ -25,7 +25,7 @@ class Simulation(pygame.sprite.Sprite):
         self.agent = Agent(self.environment)
 
     def update(self):
-        user_input(self.agent)
+        take_snapshot = user_input(self.agent)
         
         self.agent.calculate_forward_kinematics(take_snapshot)
 

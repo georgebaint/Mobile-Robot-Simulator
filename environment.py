@@ -2,6 +2,7 @@ import pygame
 import numpy as np 
 import cv2 as cv
 from settings import *
+import matplotlib.pyplot as plt
 import scipy
 
 class Environment:
