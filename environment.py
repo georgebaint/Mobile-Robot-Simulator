@@ -31,8 +31,6 @@ class Environment:
         circle = np.zeros((HEIGHT, WIDTH), dtype='uint8')
         circle = cv.circle(circle, (int(new_pos[0]), int(new_pos[1])), ROBOT_RADIUS, 255, -1)
 
-        print(new_pos)
-
         inter = circle & self.maze_array       
         # print(f"Circle: {circle}")
         # print(f": {circle}") 

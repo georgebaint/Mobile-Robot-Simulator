@@ -11,7 +11,7 @@ from sys import exit
 import math
 from agent import Agent
 from environment import Environment
-from controls import user_input
+from controls import Controls
 from settings import *
 import random
 import cv2 as cv
@@ -23,9 +23,10 @@ class Simulation(pygame.sprite.Sprite):
         super().__init__()
         self.environment = Environment()
         self.agent = Agent(self.environment)
+        self.controls = Controls()
 
     def update(self):
-        take_snapshot = user_input(self.agent)
+        take_snapshot = self.controls.user_input(self.agent)
         
         self.agent.calculate_forward_kinematics(take_snapshot)
 
