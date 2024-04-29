@@ -59,6 +59,9 @@ class Agent:
 
         self.sensors = self.Sensors()
 
+        self.mu = np.zeros(3)
+        self.sigma = np.eye(3)
+
     def run_sensors(self, screen):
         self.sensors.run(self, screen)
     
@@ -111,37 +114,40 @@ class Agent:
         
         u = np.array([omega, velocity]).T
 
-        sigma_Rx = 1
-        sigma_Ry = 1
-        sigma_Rtheta = 2
+        sigma_Rx = 3
+        sigma_Ry = 3
+        sigma_Rtheta = 5
 
         R = np.array([[sigma_Rx**2, 0, 0],
                         [0, sigma_Ry**2, 0],
                         [0, 0, sigma_Rtheta**2]])
 
-        epsilon = np.random.multivariate_normal(np.array([0,0,0]),R, 1)
+        C = np.eye(3)
+        sigma_Qx = 1
+        sigma_Qy = 1
+        sigma_Qtheta = 2
 
-        new_pos = A * self.pos + B * u + epsilon
-        # μ = 0, R-> covariance matrix
+        Q = np.array([[sigma_Qx**2, 0, 0],
+                        [0, sigma_Qy**2, 0],
+                        [0, 0, sigma_Qtheta**2]])
 
+        # epsilon = np.random.multivariate_normal(np.array([0,0,0]),R, 1)
 
+        # new_pos = A * self.pos + B * u + epsilon
+        
+        #Prediction
+        mu_prediction = A @ self.mu + B @ u
+        sigma_prediction = A @ self.sigma @ A.T + R
 
-        if any landmark in range
-            for every landmark
-            
-                C = np.eye(3)
-                sigma_Qx = 5
-                sigma_Qy = 5
-                sigma_Qtheta = 10
+        #TODO: z = detect_landmarks...
+        z = np.zeros(3)
+        # z = mu_prediction
+        #Correction
+        K = sigma_prediction @ C.T @ np.linalg.inv(C @ sigma_prediction @ C.T + Q)
+        mu = mu_prediction + K @ (z - C @ mu_prediction)
+        sigma = (np.eye(3) - K @ C) @ sigma_prediction
 
-                Q = np.array([[sigma_Qx**2, 0, 0],
-                                [0, sigma_Qy**2, 0],
-                                [0, 0, sigma_Qtheta**2]])
-                
-                delta = np.random.multivariate_normal(np.array([0,0,0]), Q, 1)
+        new_pos = np.random.multivariate_normal(mu, sigma, 1)
 
-                old_pos = calculation related to landmarks that are in range
-
-                new_pos = C * old_pos + delta
-            
-            new_pos = average of each landmark new_pos 
+        self.mu = mu
+        self.sigma = sigma
