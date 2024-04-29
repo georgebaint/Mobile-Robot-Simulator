@@ -19,6 +19,9 @@ class Agent:
                 for distance in range(agent.radius, agent.radius + max_sensor_length):
                     end_x = int(round(agent.pos.x + distance * math.cos(angle)))
                     end_y = int(round(agent.pos.y + distance * math.sin(angle)))
+                    #TODO if agent.evironment.is_landmark(end_x, end_y): 
+                        # use this landmark for the agent 
+                        # update this landmark's flag to true
                     if agent.environment.is_wall(end_x, end_y):
                         break
                 else:
@@ -63,18 +66,16 @@ class Agent:
 
         dt = 1  # Assuming the delta time is 1 frame.
         omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
+        adjusted_angle = math.radians(self.angle)
 
         if omega == 0:  # Straight movement Exception
-            # Adjust angle by subtracting 90 degrees for correct orientation 
-            # Needs to be done so wheels are on the side of the robot since on default state it looks UP (90degrees) and not on the RIGHT(0degrees)
-            adjusted_angle = math.radians(self.angle - 90)
             new_x = self.pos.x + math.cos(adjusted_angle) * (self.right_motor_speed + self.left_motor_speed) / 2 * dt
             new_y = self.pos.y + math.sin(adjusted_angle) * (self.right_motor_speed + self.left_motor_speed) / 2 * dt
             self.pos = pygame.math.Vector2(new_x, new_y)
+            
         else:
             R = 1 / 2 * (self.left_motor_speed + self.right_motor_speed) / omega
-            # Same adjustment for ICC calculations
-            adjusted_angle = math.radians(self.angle - 90)
+
             ICC_x = self.pos.x - R * math.sin(adjusted_angle)
             ICC_y = self.pos.y + R * math.cos(adjusted_angle)
 
