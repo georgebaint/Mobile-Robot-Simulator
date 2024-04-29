@@ -19,6 +19,9 @@ class Agent:
                 for distance in range(agent.radius, agent.radius + max_sensor_length):
                     end_x = int(round(agent.pos.x + distance * math.cos(angle)))
                     end_y = int(round(agent.pos.y + distance * math.sin(angle)))
+                    #TODO if agent.evironment.is_landmark(end_x, end_y): 
+                        # use this landmark for the agent 
+                        # update this landmark's flag to true
                     if agent.environment.is_wall(end_x, end_y):
                         break
                 else:

@@ -6,10 +6,24 @@ import matplotlib.pyplot as plt
 import scipy
 
 class Environment:
+
+    class Landmark:
+        def __init__(self, id, position):
+            self.id = id
+            self.position = position
+            self.flag = False
+
+        def draw_landmark(self, screen, radius):
+            pygame.draw.circle(screen, (0, 0, 255), self.position, radius)
+
+
     def __init__(self):       
         self.maze_array = self.get_pixel_map("images/maze.png")  # Get binary pixel map of the maze
+        # self.landmarks_positions = self.create_landmarks()
+        self.landmarks = self.create_landmarks()
+        self.landmark_radius = 15
 
-    def get_pixel_map(self, image_path, threshold=127):
+    def get_pixel_map(self, image_path, threshold=254):
         # Load the image using OpenCV
         image = cv.imread(image_path, cv.IMREAD_GRAYSCALE)
         # Apply a binary threshold to distinguish walls from free space
@@ -25,6 +39,13 @@ class Environment:
         else:
             # If out of bounds, treat as a wall to prevent errors
             return True
+    
+    def is_landmark(self, x, y):
+        for item in self.landmarks:
+            if item.position - self.landmark_radius < x < item.position - self.landmark_radius and item.position - self.landmark_radius < x < item.position - self.landmark_radius: #TODO check if it needs change to cover corcle and not square
+                return True
+            else: 
+                return False #TODO 
 
     def detect_collision(self, old_pos, new_pos, take_snapshot):
 
@@ -87,3 +108,63 @@ class Environment:
             return adj_pos, True
         
         return new_pos, True
+    
+    def draw_landmarks(self, screen):
+        for landmark in self.landmarks:
+            landmark.draw_landmark(screen, self.landmark_radius)
+    
+    def create_landmarks(self):
+        pos = [[147,150],
+        [280,155],
+        [385,279],
+        [178,227],
+        [161,412],
+        [258,420]]
+
+        ids = [f"L{x}" for x in range(1, len(pos)+1)]
+        landmarks = []
+
+        for i, j in zip(ids, pos):
+            landmarks.append(self.Landmark(id=i, position=j))
+            
+        return landmarks
+
+        
+if __name__ == "__main__":
+
+    env = Environment()
+    print(env.landmarks[0].position)
+
+# # print(env.maze_array)
+# # with open('image_with_axes.txt', 'w') as file:
+# #     # Write a header or some initial information if needed
+# #     file.write("x, y, value\n")
+
+# import matplotlib.pyplot as plt
+# import numpy as np
+
+# # Assume `binary_image` is your binary image loaded into a 2D NumPy array
+# binary_image = env.maze_array
+
+# # Display the image
+# plt.imshow(binary_image, cmap='gray')
+
+# # Add a grid
+# # plt.grid(which='both', color='red', linestyle='-', linewidth=0.5)
+
+# # Label the axes
+# plt.xlabel('x-axis')
+# plt.ylabel('y-axis')
+
+# # Set the ticks to match image coordinates
+# plt.xticks(range(binary_image.shape[1]))
+# plt.yticks(range(binary_image.shape[0]))
+
+# # Reverse the y-axis to match image coordinates
+# # plt.gca().invert_yaxis()
+
+# # Save the plot with axes to a file
+# plt.savefig('image_with_axes.png')
+
+# # Optionally display the plot
+# plt.show()
