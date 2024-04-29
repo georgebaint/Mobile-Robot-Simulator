@@ -2,6 +2,7 @@ import pygame
 import math
 from settings import *
 import matplotlib.pyplot as plt
+import numpy as np
 
 class Agent:
     class Sensors:
@@ -97,3 +98,50 @@ class Agent:
         # Ensures image rotates with the angle
         self.image = pygame.transform.rotate(self.base_robot_image, -self.angle)
         self.rect = self.image.get_rect(center=self.pos)
+
+    def kalman_filter(self, ):
+
+        dt = 1
+        omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
+        velocity = (self.left_motor_speed + self.right_motor_speed) / 2
+        A = np.eye(3)
+        B = np.array([[dt*np.cos(self.angle), 0],
+             [dt*np.sin(self.angle), 0],
+             [0, dt]])
+        
+        u = np.array([omega, velocity]).T
+
+        sigma_Rx = 1
+        sigma_Ry = 1
+        sigma_Rtheta = 2
+
+        R = np.array([[sigma_Rx**2, 0, 0],
+                        [0, sigma_Ry**2, 0],
+                        [0, 0, sigma_Rtheta**2]])
+
+        epsilon = np.random.multivariate_normal(np.array([0,0,0]),R, 1)
+
+        new_pos = A * self.pos + B * u + epsilon
+        # μ = 0, R-> covariance matrix
+
+
+
+        if any landmark in range
+            for every landmark
+            
+                C = np.eye(3)
+                sigma_Qx = 5
+                sigma_Qy = 5
+                sigma_Qtheta = 10
+
+                Q = np.array([[sigma_Qx**2, 0, 0],
+                                [0, sigma_Qy**2, 0],
+                                [0, 0, sigma_Qtheta**2]])
+                
+                delta = np.random.multivariate_normal(np.array([0,0,0]), Q, 1)
+
+                old_pos = calculation related to landmarks that are in range
+
+                new_pos = C * old_pos + delta
+            
+            new_pos = average of each landmark new_pos 
