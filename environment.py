@@ -14,8 +14,7 @@ class Environment:
             self.flag = False
 
         def draw_landmark(self, screen, radius):
-            pygame.draw.circle(screen, (0, 0, 255), self.position, radius)
-
+            pygame.draw.circle(screen, ((0, 0, 255) if not self.flag else (255, 255, 0)), self.position, radius)
 
     def __init__(self):       
         self.maze_array = self.get_pixel_map("images/maze.png")  # Get binary pixel map of the maze
@@ -109,6 +108,25 @@ class Environment:
         
         return new_pos, True
     
+    def dist(self, pos, robot_pos):
+        dx = (pos[0] - robot_pos[0])**2
+        dy = (pos[1] - robot_pos[1])**2
+        return np.sqrt(dx + dy)
+
+    def detect_landmarks(self, robot_pos):
+        landmark_srt = []
+        
+        for i in range(len(self.landmarks)): 
+            landmark = self.landmarks[i]
+            self.landmarks[i].flag = False
+            landmark_srt.append((self.dist(landmark.position, robot_pos), landmark.id))
+
+        landmark_srt = sorted(landmark_srt)
+        
+        (shortest_path, ldm_id) = landmark_srt[0]
+        if (shortest_path < 100):
+            self.landmarks[ldm_id].flag = True
+
     def draw_landmarks(self, screen):
         for landmark in self.landmarks:
             landmark.draw_landmark(screen, self.landmark_radius)
@@ -121,7 +139,8 @@ class Environment:
         [161,412],
         [258,420]]
 
-        ids = [f"L{x}" for x in range(1, len(pos)+1)]
+        #ids = [f"L{x}" for x in range(1, len(pos)+1)]
+        ids = np.arange(len(pos))
         landmarks = []
 
         for i, j in zip(ids, pos):
@@ -129,7 +148,6 @@ class Environment:
             
         return landmarks
 
-        
 if __name__ == "__main__":
 
     env = Environment()
