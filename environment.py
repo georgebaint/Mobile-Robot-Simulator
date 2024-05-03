@@ -46,7 +46,7 @@ class Environment:
             else: 
                 return False #TODO 
 
-    def detect_collision(self, old_pos, new_pos, take_snapshot):
+    def detect_collision(self, old_pos, new_pos, take_snapshot=False):
 
         circle = np.zeros((HEIGHT, WIDTH), dtype='uint8')
         circle = cv.circle(circle, (int(new_pos[0]), int(new_pos[1])), ROBOT_RADIUS, 255, -1)
