@@ -24,11 +24,16 @@ class Simulation(pygame.sprite.Sprite):
         self.environment = Environment()
         self.agent = Agent(self.environment)
         self.controls = Controls()
+        self.previous_positions = []
+        self.previous_estimated_positions = []
 
     def update(self):
         take_snapshot = self.controls.user_input(self.agent)
         
         self.agent.calculate_forward_kinematics(take_snapshot)
+        
+        #TODO: remove and create the proper way for the estimated positions through kalman filters
+        self.agent.estimated_pos = self.agent.pos
         self.environment.detect_landmarks(self.agent.pos)
 
         # self.agent.robot_rotation()
@@ -40,6 +45,8 @@ class Simulation(pygame.sprite.Sprite):
         screen.blit(self.agent.image, self.agent.rect)
         pygame.draw.circle(screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.agent.pos.x), int(self.agent.pos.y)), self.agent.radius, width=2)
         pygame.draw.rect(screen, "green", self.agent.rect, width=2)
+
+        self.draw_trajectory(screen)  # Change 'solid' to 'dotted' as needed
 
         # Display the current wheel speeds
         self.draw_text(screen, f"Left Wheel Speed: {self.agent.left_motor_speed:.2f}", (10, 10))
@@ -59,6 +66,23 @@ class Simulation(pygame.sprite.Sprite):
         # Convert binary image to match the display dimensions
         binary_image = cv.resize(binary_image, (WIDTH, HEIGHT))
         return binary_image
+
+    def draw_trajectory(self, screen):
+        # Record the current position of the agent
+        self.previous_positions.append((int(self.agent.pos.x), int(self.agent.pos.y)))
+        self.previous_estimated_positions.append((int(self.agent.estimated_pos.x), int(self.agent.estimated_pos.y)))
+
+        count = 0
+
+        # Redraw all previously drawn circles
+        for pos1, pos2 in zip(self.previous_positions, self.previous_estimated_positions):
+            # gray is for solid and the other colour will be used for kalman prediction
+            pygame.draw.circle(screen, 'black', pos1, 2)
+            pygame.draw.circle(screen, 'gray', (pos2[0]+20,pos2[1]+20), 2)
+            count = len(self.previous_positions)
+            if count > 600:
+                self.previous_positions.pop(0)
+                self.previous_estimated_positions.pop(0)
 
     def run_simulation(self):
         
@@ -82,6 +106,7 @@ class Simulation(pygame.sprite.Sprite):
 
             pygame.display.update()
             clock.tick(FPS)
+            print(pygame.time.get_ticks())
 
 if __name__ == "__main__":
     sim = Simulation()
