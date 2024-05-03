@@ -37,7 +37,7 @@ class Simulation(pygame.sprite.Sprite):
         self.agent.rect.center = self.forward_kinematics.agent_pos
 
         screen.blit(self.agent.image, self.agent.rect)
-        self.agent.run_sensors(screen, self.forward_kinematics)
+        self.agent.run_sensors(screen)
         self.environment.draw_landmarks(screen)
         screen.blit(self.agent.image, self.agent.rect)
         pygame.draw.circle(screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)), self.agent.radius, width=2)

@@ -7,20 +7,21 @@ import numpy as np
 class Agent:
     class Sensors:
         def __init__(self):
-            pass
+            self.agent_postion = pygame.math.Vector2(ROBOT_START_X, ROBOT_START_Y)
+            self.agent_angle = 0
         
-        def run(self, agent, screen, forward_kinematics):
+        def run(self, agent, screen):
             num_sensors = 12
             max_sensor_length = 200
             tab20 = plt.get_cmap("tab20").colors
             font = pygame.font.Font(None, 24)
 
             for i in range(num_sensors):
-                angle = math.radians((360 / num_sensors) * i + forward_kinematics.agent_angle)
+                angle = math.radians((360 / num_sensors) * i + self.agent_angle)
                 for distance in range(agent.radius, agent.radius + max_sensor_length):
                     # print(distance)
-                    end_x = int(round(forward_kinematics.agent_pos.x + distance * math.cos(angle)))
-                    end_y = int(round(forward_kinematics.agent_pos.y + distance * math.sin(angle)))
+                    end_x = int(round(self.agent_pos.x + distance * math.cos(angle)))
+                    end_y = int(round(self.agent_pos.y + distance * math.sin(angle)))
                     #TODO if agent.evironment.is_landmark(end_x, end_y): 
                         # use this landmark for the agent 
                         # update this landmark's flag to true
@@ -29,8 +30,8 @@ class Agent:
                 else:
                     distance = agent.radius + max_sensor_length  # Ensure distance is set if no wall is hit
 
-                start_pos = (int(forward_kinematics.agent_pos.x + agent.radius * math.cos(angle)), int(forward_kinematics.agent_pos.y + agent.radius * math.sin(angle)))
-                end_pos = (int(forward_kinematics.agent_pos.x + distance * math.cos(angle)), int(forward_kinematics.agent_pos.y + distance * math.sin(angle)))
+                start_pos = (int(self.agent_pos.x + agent.radius * math.cos(angle)), int(self.agent_pos.y + agent.radius * math.sin(angle)))
+                end_pos = (int(self.agent_pos.x + distance * math.cos(angle)), int(self.agent_pos.y + distance * math.sin(angle)))
                 color = tuple(int(255 * x) for x in tab20[i % len(tab20)])
                 pygame.draw.line(screen, color, start_pos, end_pos, 2)
 
@@ -68,8 +69,8 @@ class Agent:
         self.mu = np.zeros(3)
         self.sigma = np.eye(3)
 
-    def run_sensors(self, screen, forward_kinematics):
-        self.sensors.run(self, screen, forward_kinematics)
+    def run_sensors(self, screen):
+        self.sensors.run(self, screen)
     
     # def calculate_forward_kinematics(self,):
     #     old_pos = (self.pos.x, self.pos.y)

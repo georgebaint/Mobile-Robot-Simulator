@@ -43,6 +43,8 @@ class ForwardKinematics:
         new_pos = (self.agent_pos.x, self.agent_pos.y)
         new_pos, self.collision = self.environment.detect_collision(old_pos, new_pos)
         self.agent_pos = pygame.math.Vector2(new_pos)
+
+        self.agent.sensors.agent_pos = self.agent_pos
         # print(self.agent_pos)
         # print(f"DEBUG: NEW_X = {new_x}, NEW_Y = {new_y}, ANGLE = {self.angle}")
 
@@ -50,3 +52,4 @@ class ForwardKinematics:
         # Ensures image rotates with the angle
         self.agent.image = pygame.transform.rotate(self.agent.base_robot_image, -self.agent_angle)
         self.agent.rect = self.agent.image.get_rect(center=self.agent_pos)
+        self.agent.sensors.agent_angle = self.agent_angle
