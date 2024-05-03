@@ -2,6 +2,7 @@ import pygame
 import math
 from settings import *
 import matplotlib.pyplot as plt
+import numpy as np
 
 class Agent:
     class Sensors:
@@ -58,6 +59,9 @@ class Agent:
 
         self.sensors = self.Sensors()
 
+        self.mu = np.zeros(3)
+        self.sigma = np.eye(3)
+
     def run_sensors(self, screen):
         self.sensors.run(self, screen)
     
@@ -66,18 +70,16 @@ class Agent:
 
         dt = 1  # Assuming the delta time is 1 frame.
         omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
+        adjusted_angle = math.radians(self.angle)
 
         if omega == 0:  # Straight movement Exception
-            # Adjust angle by subtracting 90 degrees for correct orientation 
-            # Needs to be done so wheels are on the side of the robot since on default state it looks UP (90degrees) and not on the RIGHT(0degrees)
-            adjusted_angle = math.radians(self.angle - 90)
             new_x = self.pos.x + math.cos(adjusted_angle) * (self.right_motor_speed + self.left_motor_speed) / 2 * dt
             new_y = self.pos.y + math.sin(adjusted_angle) * (self.right_motor_speed + self.left_motor_speed) / 2 * dt
             self.pos = pygame.math.Vector2(new_x, new_y)
+            
         else:
             R = 1 / 2 * (self.left_motor_speed + self.right_motor_speed) / omega
-            # Same adjustment for ICC calculations
-            adjusted_angle = math.radians(self.angle - 90)
+
             ICC_x = self.pos.x - R * math.sin(adjusted_angle)
             ICC_y = self.pos.y + R * math.cos(adjusted_angle)
 
@@ -99,3 +101,53 @@ class Agent:
         # Ensures image rotates with the angle
         self.image = pygame.transform.rotate(self.base_robot_image, -self.angle)
         self.rect = self.image.get_rect(center=self.pos)
+
+    def kalman_filter(self, ):
+
+        dt = 1
+        omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
+        velocity = (self.left_motor_speed + self.right_motor_speed) / 2
+        A = np.eye(3)
+        B = np.array([[dt*np.cos(self.angle), 0],
+             [dt*np.sin(self.angle), 0],
+             [0, dt]])
+        
+        u = np.array([omega, velocity]).T
+
+        sigma_Rx = 3
+        sigma_Ry = 3
+        sigma_Rtheta = 5
+
+        R = np.array([[sigma_Rx**2, 0, 0],
+                        [0, sigma_Ry**2, 0],
+                        [0, 0, sigma_Rtheta**2]])
+
+        C = np.eye(3)
+        sigma_Qx = 1
+        sigma_Qy = 1
+        sigma_Qtheta = 2
+
+        Q = np.array([[sigma_Qx**2, 0, 0],
+                        [0, sigma_Qy**2, 0],
+                        [0, 0, sigma_Qtheta**2]])
+
+        # epsilon = np.random.multivariate_normal(np.array([0,0,0]),R, 1)
+
+        # new_pos = A * self.pos + B * u + epsilon
+        
+        #Prediction
+        mu_prediction = A @ self.mu + B @ u
+        sigma_prediction = A @ self.sigma @ A.T + R
+
+        #TODO: z = detect_landmarks...
+        z = np.zeros(3)
+        # z = mu_prediction
+        #Correction
+        K = sigma_prediction @ C.T @ np.linalg.inv(C @ sigma_prediction @ C.T + Q)
+        mu = mu_prediction + K @ (z - C @ mu_prediction)
+        sigma = (np.eye(3) - K @ C) @ sigma_prediction
+
+        new_pos = np.random.multivariate_normal(mu, sigma, 1)
+
+        self.mu = mu
+        self.sigma = sigma
