@@ -68,7 +68,7 @@ class Simulation(pygame.sprite.Sprite):
 
     def draw_trajectory(self, screen):
         # Record the current position of the agent
-        self.previous_positions.append((int(self.agent.pos.x), int(self.agent.pos.y)))
+        self.previous_positions.append((int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)))
         self.previous_estimated_positions.append((int(self.agent.estimated_pos.x), int(self.agent.estimated_pos.y)))
 
         count = 0
