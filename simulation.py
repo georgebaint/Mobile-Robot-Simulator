@@ -11,6 +11,7 @@ from sys import exit
 import math
 from agent import Agent
 from environment import Environment
+from forward_kinematics import ForwardKinematics
 from controls import Controls
 from settings import *
 import random
@@ -23,27 +24,25 @@ class Simulation(pygame.sprite.Sprite):
         super().__init__()
         self.environment = Environment()
         self.agent = Agent(self.environment)
+        self.forward_kinematics = ForwardKinematics(self.agent, self.environment)
         self.controls = Controls()
         self.previous_positions = []
         self.previous_estimated_positions = []
 
     def update(self):
         take_snapshot = self.controls.user_input(self.agent)
-        
-        self.agent.calculate_forward_kinematics(take_snapshot)
-        
-        #TODO: remove and create the proper way for the estimated positions through kalman filters
-        self.agent.estimated_pos = self.agent.pos
-        self.environment.detect_landmarks(self.agent.pos)
+        self.forward_kinematics.calculate_forward_kinematics()
+        # self.agent.calculate_forward_kinematics(take_snapshot)
+        self.environment.detect_landmarks(self.forward_kinematics.agent_pos)
 
         # self.agent.robot_rotation()
-        self.agent.rect.center = self.agent.pos
+        self.agent.rect.center = self.forward_kinematics.agent_pos
 
         screen.blit(self.agent.image, self.agent.rect)
         self.agent.run_sensors(screen)
         self.environment.draw_landmarks(screen)
         screen.blit(self.agent.image, self.agent.rect)
-        pygame.draw.circle(screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.agent.pos.x), int(self.agent.pos.y)), self.agent.radius, width=2)
+        pygame.draw.circle(screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)), self.agent.radius, width=2)
         pygame.draw.rect(screen, "green", self.agent.rect, width=2)
 
         self.draw_trajectory(screen)  # Change 'solid' to 'dotted' as needed
