@@ -111,14 +111,14 @@ class Agent:
 
     # def update_image(self,):
 
-    def kalman_filter(self, ):
+    def kalman_filter(self, forward_kinematics):
 
         dt = 1
         omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
         velocity = (self.left_motor_speed + self.right_motor_speed) / 2
         A = np.eye(3)
-        B = np.array([[dt*np.cos(self.angle), 0],
-             [dt*np.sin(self.angle), 0],
+        B = np.array([[dt*np.cos(self.estimated_angle), 0],
+             [dt*np.sin(self.estimated_angle), 0],
              [0, dt]])
         
         u = np.array([omega, velocity]).T
@@ -149,7 +149,10 @@ class Agent:
         sigma_prediction = A @ self.sigma @ A.T + R
 
         #TODO: z = detect_landmarks...
-        z = np.zeros(3)
+        # z = np.zeros(3)
+        z = np.array([forward_kinematics.agent_pos.x, forward_kinematics.agent_pos.y, forward_kinematics.agent_angle])
+
+
         # z = mu_prediction
         #Correction
         K = sigma_prediction @ C.T @ np.linalg.inv(C @ sigma_prediction @ C.T + Q)
@@ -157,6 +160,7 @@ class Agent:
         sigma = (np.eye(3) - K @ C) @ sigma_prediction
 
         new_pos = np.random.multivariate_normal(mu, sigma, 1)
+        self.estimated_pos = new_pos
 
         self.mu = mu
         self.sigma = sigma
