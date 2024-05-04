@@ -66,6 +66,9 @@ class Agent:
 
         self.sensors = self.Sensors()
 
+        self.mu = np.zeros(3)
+        self.sigma = np.eye(3)
+
     def run_sensors(self, screen):
         self.sensors.run(self, screen)
     
@@ -157,7 +160,10 @@ class Agent:
         sigma = (np.eye(3) - K @ C) @ sigma_prediction
 
         new_pos = np.random.multivariate_normal(mu, sigma, 1)
-        self.estimated_pos = new_pos
+
+        # print(f"-------------------------- {new_pos[0,0], new_pos[0,1], new_pos[0,2]}")
+        self.estimated_pos = pygame.math.Vector2(new_pos[0,0], new_pos[0,1])
+        self.estimated_angle = new_pos[0,2]
 
         self.mu = mu
         self.sigma = sigma

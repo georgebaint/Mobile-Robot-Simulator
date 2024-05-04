@@ -79,7 +79,9 @@ class Simulation(pygame.sprite.Sprite):
         for pos1, pos2 in zip(self.previous_positions, self.previous_estimated_positions):
             # gray is for solid and the other colour will be used for kalman prediction
             pygame.draw.circle(screen, 'black', pos1, 2)
-            pygame.draw.circle(screen, 'gray', (pos2[0]+20,pos2[1]+20), 2)
+            # pygame.draw.circle(screen, 'gray', (pos2[0]+20,pos2[1]+20), 2)
+            pygame.draw.circle(screen, 'gray', (pos2[0], pos2[1]), 2)
+
             count = len(self.previous_positions)
             if count > 600:
                 self.previous_positions.pop(0)
@@ -107,7 +109,7 @@ class Simulation(pygame.sprite.Sprite):
 
             pygame.display.update()
             clock.tick(FPS)
-            print(pygame.time.get_ticks())
+            # print(pygame.time.get_ticks())
 
 if __name__ == "__main__":
     sim = Simulation()
