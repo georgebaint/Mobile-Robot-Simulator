@@ -113,6 +113,10 @@ class Environment:
         dy = (pos[1] - robot_pos[1])**2
         return np.sqrt(dx + dy)
 
+    def wall_before_landmark(self, robot_pos, landmark_pos):
+        #TODO add a wall check on the way to a landmark
+        return False
+
     def detect_landmarks(self, robot_pos):
         landmark_srt = []
         
@@ -123,9 +127,11 @@ class Environment:
 
         landmark_srt = sorted(landmark_srt)
         
-        (shortest_path, ldm_id) = landmark_srt[0]
-        if (shortest_path < 100):
-            self.landmarks[ldm_id].flag = True
+        selected_ids = []
+        for path_len, ldm_id in landmark_srt:
+            if path_len < 100 and not self.wall_before_landmark(robot_pos, self.landmarks[ldm_id].position):
+                selected_ids.append(ldm_id)
+                self.landmarks[ldm_id].flag = True
 
     def draw_landmarks(self, screen):
         for landmark in self.landmarks:

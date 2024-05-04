@@ -71,47 +71,8 @@ class Agent:
 
     def run_sensors(self, screen):
         self.sensors.run(self, screen)
-    
-    # def calculate_forward_kinematics(self,):
-    #     old_pos = (self.pos.x, self.pos.y)
 
-    #     dt = 1  # Assuming the delta time is 1 frame.
-    #     omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
-    #     adjusted_angle = math.radians(self.angle)
-
-    #     if omega == 0:  # Straight movement Exception
-    #         new_x = self.pos.x + math.cos(adjusted_angle) * (self.right_motor_speed + self.left_motor_speed) / 2 * dt
-    #         new_y = self.pos.y + math.sin(adjusted_angle) * (self.right_motor_speed + self.left_motor_speed) / 2 * dt
-    #         self.pos = pygame.math.Vector2(new_x, new_y)
-            
-    #     else:
-    #         R = 1 / 2 * (self.left_motor_speed + self.right_motor_speed) / omega
-
-    #         ICC_x = self.pos.x - R * math.sin(adjusted_angle)
-    #         ICC_y = self.pos.y + R * math.cos(adjusted_angle)
-
-    #         new_x = math.cos(omega * dt) * (self.pos.x - ICC_x) - math.sin(omega * dt) * (self.pos.y - ICC_y) + ICC_x
-    #         new_y = math.sin(omega * dt) * (self.pos.x - ICC_x) + math.cos(omega * dt) * (self.pos.y - ICC_y) + ICC_y
-    #         new_angle = self.angle + math.degrees(omega * dt)
-
-    #         self.pos = pygame.math.Vector2(new_x, new_y)
-    #         self.angle = new_angle % 360  # Normalize angle
-
-    #         self.robot_rotation() 
-        
-    #     new_pos = (self.pos.x, self.pos.y)
-    #     new_pos, self.collision = self.environment.detect_collision(old_pos, new_pos, )
-    #     self.pos = pygame.math.Vector2(new_pos)
-    #     # print(f"DEBUG: NEW_X = {new_x}, NEW_Y = {new_y}, ANGLE = {self.angle}")
-
-    # def robot_rotation(self):
-    #     # Ensures image rotates with the angle
-    #     self.image = pygame.transform.rotate(self.base_robot_image, -self.angle)
-    #     self.rect = self.image.get_rect(center=self.pos)
-
-    # def update_image(self,):
-
-    def kalman_filter(self, ):
+    def kalman_filter(self):
 
         dt = 1
         omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
