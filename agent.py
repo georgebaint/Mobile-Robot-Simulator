@@ -66,9 +66,6 @@ class Agent:
 
         self.sensors = self.Sensors()
 
-        self.mu = np.zeros(3)
-        self.sigma = np.eye(3)
-
     def run_sensors(self, screen):
         self.sensors.run(self, screen)
     
