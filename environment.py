@@ -20,7 +20,7 @@ class Environment:
         self.maze_array = self.get_pixel_map("images/maze.png")  # Get binary pixel map of the maze
         # self.landmarks_positions = self.create_landmarks()
         self.landmarks = self.create_landmarks()
-        self.landmark_radius = 15
+        self.landmark_radius = 5
 
     def get_pixel_map(self, image_path, threshold=254):
         # Load the image using OpenCV
@@ -132,12 +132,19 @@ class Environment:
             landmark.draw_landmark(screen, self.landmark_radius)
     
     def create_landmarks(self):
-        pos = [[147,150],
+        pos = [[149,157],
         [280,155],
         [385,279],
-        [178,227],
+        [150,307],
         [161,412],
-        [258,420]]
+        [258,420],
+        [410,543],
+        [528,280],
+        [652,155],
+        [774,408],
+        [867,155],
+        [1106,283],
+        [1009,438]]
 
         #ids = [f"L{x}" for x in range(1, len(pos)+1)]
         ids = np.arange(len(pos))
