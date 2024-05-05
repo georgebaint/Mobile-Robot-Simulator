@@ -99,7 +99,7 @@ class Agent:
         # self.sensors.run(self, screen)
         pass
 
-    def kalman_filter(self, forward_kinematics):
+    def kalman_filter(self, forward_kinematics, take_snapshot=False):
         """
         Applies the Kalman filter to update the robot's state estimation based on sensor data and motion model.
 
