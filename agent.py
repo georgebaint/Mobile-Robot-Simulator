@@ -73,7 +73,7 @@ class Agent:
         pass
         #self.sensors.run(self, screen)
 
-    def kalman_filter(self, forward_kinematics):
+    def kalman_filter(self, forward_kinematics, take_snapshot=False):
 
         dt = 1
         omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
@@ -85,18 +85,18 @@ class Agent:
         
         u = np.array([omega, velocity]).T
 
-        sigma_Rx = 3
-        sigma_Ry = 3
-        sigma_Rtheta = 5
+        sigma_Rx = 0.3
+        sigma_Ry = 0.3
+        sigma_Rtheta = 0.5
 
         R = np.array([[sigma_Rx**2, 0, 0],
                         [0, sigma_Ry**2, 0],
                         [0, 0, sigma_Rtheta**2]])
 
         C = np.eye(3)
-        sigma_Qx = 1
-        sigma_Qy = 1
-        sigma_Qtheta = 2
+        sigma_Qx = 0.1
+        sigma_Qy = 0.1
+        sigma_Qtheta = 0.2
 
         Q = np.array([[sigma_Qx**2, 0, 0],
                         [0, sigma_Qy**2, 0],
@@ -113,7 +113,7 @@ class Agent:
         #TODO: z = detect_landmarks...
         # z = np.zeros(3)
         #z = np.array([forward_kinematics.agent_pos.x, forward_kinematics.agent_pos.y, forward_kinematics.agent_angle])
-        z, is_located = self.environment.get_observation(forward_kinematics)
+        z, is_located = self.environment.get_observation(forward_kinematics, take_snapshot)
 
         # if no observation - skip the correction step
         if is_located:

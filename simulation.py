@@ -33,7 +33,7 @@ class Simulation(pygame.sprite.Sprite):
         take_snapshot = self.controls.user_input(self.agent)
         self.forward_kinematics.calculate_forward_kinematics()
 
-        self.agent.kalman_filter(self.forward_kinematics)
+        self.agent.kalman_filter(self.forward_kinematics, take_snapshot)
         # self.agent.calculate_forward_kinematics(take_snapshot)
         # self.environment.detect_landmarks(self.forward_kinematics.agent_pos)
 

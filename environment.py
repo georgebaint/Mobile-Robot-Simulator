@@ -22,7 +22,7 @@ class Environment:
         self.maze_array = self.get_pixel_map("images/maze.png")  # Get binary pixel map of the maze
         # self.landmarks_positions = self.create_landmarks()
         self.landmarks = self.create_landmarks()
-        self.landmark_radius = 15
+        self.landmark_radius = 5
         self.current_selection = []
         self.last_robot_pos = [0, 0]
 
@@ -51,7 +51,7 @@ class Environment:
                 return False #TODO 
 
     def detect_collision(self, old_pos, new_pos, take_snapshot=False):
-
+        
         circle = np.zeros((HEIGHT, WIDTH), dtype='uint8')
         circle = cv.circle(circle, (int(new_pos[0]), int(new_pos[1])), ROBOT_RADIUS, 255, -1)
 
@@ -117,14 +117,22 @@ class Environment:
         dy = (pos[1] - robot_pos[1])**2
         return np.sqrt(dx + dy)
 
-    def wall_before_landmark(self, robot_pos, landmark_pos):
-        # line = np.zeros((HEIGHT, WIDTH), dtype='uint8')
-        # line = cv.line(line, (int(robot_pos[0]), int(robot_pos[1])), (int(landmark_pos[0]), int(landmark_pos[1])), 255, 2)
+    def wall_before_landmark(self, robot_pos, landmark_pos, take_snapshot):
+        line = np.zeros((HEIGHT, WIDTH), dtype='uint8')
+        line = cv.line(line, (int(robot_pos[0]), int(robot_pos[1])), (int(landmark_pos[0]), int(landmark_pos[1])), 255, 2)
 
-        # inter = line & self.maze_array   
-        # return np.sum(inter) > 0
+        circle = np.zeros((HEIGHT, WIDTH), dtype='uint8')
+        circle = cv.circle(circle, (int(landmark_pos[0]), int(landmark_pos[1])), ROBOT_RADIUS, 255, -1)
 
-        return False
+        _, circle = cv.threshold(circle, 127, 255, cv.THRESH_BINARY_INV)
+
+        inter = line & (self.maze_array & circle)
+        
+        if take_snapshot:
+            plt.imshow(self.maze_array ^ line, cmap='gray')
+            plt.show()
+        
+        return np.sum(inter) > 0
 
     def val_close(self, v1, v2, v3):
         a = np.array([v1[0], v2[0], v3[0]])
@@ -154,7 +162,7 @@ class Environment:
 
         return np.array([fnx, fny, robot_angle])
 
-    def get_observation(self, forward_kinematics):
+    def get_observation(self, forward_kinematics, take_snapshot=False):
         landmark_srt = []
         self.current_selection = []
 
@@ -170,7 +178,7 @@ class Environment:
         
         selected_ids = []
         for path_len, ldm_id in landmark_srt:
-            if path_len < 300 and not self.wall_before_landmark(robot_pos, self.landmarks[ldm_id].position):
+            if path_len < 300 and not self.wall_before_landmark(robot_pos, self.landmarks[ldm_id].position, take_snapshot):
                 selected_ids.append(ldm_id)
                 self.landmarks[ldm_id].flag = True
 
