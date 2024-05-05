@@ -70,16 +70,17 @@ class Agent:
         self.sigma = np.eye(3)
 
     def run_sensors(self, screen):
-        self.sensors.run(self, screen)
+        pass
+        #self.sensors.run(self, screen)
 
-    def kalman_filter(self):
+    def kalman_filter(self, forward_kinematics):
 
         dt = 1
         omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
         velocity = (self.left_motor_speed + self.right_motor_speed) / 2
         A = np.eye(3)
-        B = np.array([[dt*np.cos(self.angle), 0],
-             [dt*np.sin(self.angle), 0],
+        B = np.array([[dt*np.cos(self.estimated_angle), 0],
+             [dt*np.sin(self.estimated_angle), 0],
              [0, dt]])
         
         u = np.array([omega, velocity]).T
@@ -110,14 +111,22 @@ class Agent:
         sigma_prediction = A @ self.sigma @ A.T + R
 
         #TODO: z = detect_landmarks...
-        z = np.zeros(3)
-        # z = mu_prediction
-        #Correction
-        K = sigma_prediction @ C.T @ np.linalg.inv(C @ sigma_prediction @ C.T + Q)
-        mu = mu_prediction + K @ (z - C @ mu_prediction)
-        sigma = (np.eye(3) - K @ C) @ sigma_prediction
+        # z = np.zeros(3)
+        #z = np.array([forward_kinematics.agent_pos.x, forward_kinematics.agent_pos.y, forward_kinematics.agent_angle])
+        z, is_located = self.environment.get_observation(forward_kinematics)
 
-        new_pos = np.random.multivariate_normal(mu, sigma, 1)
+        # if no observation - skip the correction step
+        if is_located:
+            #Correction
+            K = sigma_prediction @ C.T @ np.linalg.inv(C @ sigma_prediction @ C.T + Q)
+            self.mu = mu_prediction + K @ (z - C @ mu_prediction)
+            self.sigma = (np.eye(3) - K @ C) @ sigma_prediction
+        else:
+            self.mu = mu_prediction
+            self.sigma = sigma_prediction
 
-        self.mu = mu
-        self.sigma = sigma
+        new_pos = np.random.multivariate_normal(self.mu, self.sigma, 1)
+
+        # print(f"-------------------------- {new_pos[0,0], new_pos[0,1], new_pos[0,2]}")
+        self.estimated_pos = pygame.math.Vector2(new_pos[0,0], new_pos[0,1])
+        self.estimated_angle = new_pos[0,2]

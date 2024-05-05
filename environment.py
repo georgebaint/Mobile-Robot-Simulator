@@ -4,6 +4,8 @@ import cv2 as cv
 from settings import *
 import matplotlib.pyplot as plt
 import scipy
+import itertools
+from skspatial.objects import Circle
 
 class Environment:
 
@@ -21,6 +23,8 @@ class Environment:
         # self.landmarks_positions = self.create_landmarks()
         self.landmarks = self.create_landmarks()
         self.landmark_radius = 15
+        self.current_selection = []
+        self.last_robot_pos = [0, 0]
 
     def get_pixel_map(self, image_path, threshold=254):
         # Load the image using OpenCV
@@ -117,8 +121,40 @@ class Environment:
         #TODO add a wall check on the way to a landmark
         return False
 
-    def detect_landmarks(self, robot_pos):
+    def val_close(self, v1, v2, v3):
+        a = np.array([v1[0], v2[0], v3[0]])
+        b = np.array([v1[1], v2[1], v3[1]])
+        return ((np.max(a) - np.min(a)) < 1) and ((np.max(b) - np.min(b)) < 1)
+
+    def derive_location(self, ldm_ids, robot_pos, robot_angle):
+        circles = []
+        for id in ldm_ids:
+            ldm_pos = self.landmarks[id].position
+            dst = self.dist(ldm_pos, robot_pos)
+            circles.append(Circle(ldm_pos, dst))
+
+        pt1 = circles[0].intersect_circle(circles[1])
+        pt2 = circles[1].intersect_circle(circles[2])
+        pt3 = circles[0].intersect_circle(circles[2])
+        
+        fnx = 0
+        fny = 0
+
+        for i in range(2):
+            for j in range(2):
+                for k in range(2):
+                    if self.val_close(pt1[i], pt2[j], pt3[k]):
+                        fnx = pt1[i][0]
+                        fny = pt1[i][1]
+
+        return np.array([fnx, fny, robot_angle])
+
+    def get_observation(self, forward_kinematics):
         landmark_srt = []
+        self.current_selection = []
+
+        robot_pos = [forward_kinematics.agent_pos.x, forward_kinematics.agent_pos.y]
+        robot_angle = forward_kinematics.agent_angle
         
         for i in range(len(self.landmarks)): 
             landmark = self.landmarks[i]
@@ -129,13 +165,37 @@ class Environment:
         
         selected_ids = []
         for path_len, ldm_id in landmark_srt:
-            if path_len < 100 and not self.wall_before_landmark(robot_pos, self.landmarks[ldm_id].position):
+            if path_len < 300 and not self.wall_before_landmark(robot_pos, self.landmarks[ldm_id].position):
                 selected_ids.append(ldm_id)
                 self.landmarks[ldm_id].flag = True
+
+        if len(selected_ids) < 3:
+            return np.empty(0), False
+
+        cur_ldm_ids = selected_ids[:3]
+        self.current_selection = cur_ldm_ids
+        self.last_robot_pos = robot_pos
+        return self.derive_location(cur_ldm_ids, robot_pos, robot_angle), True
+
+        # order = np.arange(len(selected_ids))
+        # order_pms = list(itertools.permutations(order))
+        # for i in range(order_pms):
+        #     order_pms[]
+        
+        # observations = []
+        # for cur_order in order_pms:
+        #     cur_ldm_ids = cur_order[:3]
+        #     observations.append(self.derive_location(cur_ldm_ids, robot_pos, robot_angle))
+
+        # result = np.mean(observations, axis=0)
+        # return result, True
 
     def draw_landmarks(self, screen):
         for landmark in self.landmarks:
             landmark.draw_landmark(screen, self.landmark_radius)
+
+        for id in self.current_selection:
+            pygame.draw.line(screen, (0, 255, 0), self.last_robot_pos, self.landmarks[id].position)
     
     def create_landmarks(self):
         pos = [[147,150],
