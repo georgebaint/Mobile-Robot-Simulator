@@ -113,7 +113,7 @@ class Agent:
                       [dt * np.sin(self.estimated_angle), 0],
                       [0, dt]])
 
-        u = np.array([omega, velocity]).T
+        u = np.array([velocity, omega]).T
 
         # Define process and measurement noise characteristics.
         sigma_Rx, sigma_Ry, sigma_Rtheta = 3, 3, 5
@@ -132,7 +132,7 @@ class Agent:
         mu = mu_prediction + K @ (z - C @ mu_prediction)
         sigma = (np.eye(3) - K @ C) @ sigma_prediction
 
-        # Update estimated state with random noise to simulate real-world uncertainty.
+        # Update estimated state with random noise.
         new_pos = np.random.multivariate_normal(mu, sigma, 1)
         self.estimated_pos = pygame.math.Vector2(new_pos[0, 0], new_pos[0, 1])
         self.estimated_angle = new_pos[0, 2]
