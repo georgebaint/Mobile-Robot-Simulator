@@ -118,7 +118,12 @@ class Environment:
         return np.sqrt(dx + dy)
 
     def wall_before_landmark(self, robot_pos, landmark_pos):
-        #TODO add a wall check on the way to a landmark
+        # line = np.zeros((HEIGHT, WIDTH), dtype='uint8')
+        # line = cv.line(line, (int(robot_pos[0]), int(robot_pos[1])), (int(landmark_pos[0]), int(landmark_pos[1])), 255, 2)
+
+        # inter = line & self.maze_array   
+        # return np.sum(inter) > 0
+
         return False
 
     def val_close(self, v1, v2, v3):
