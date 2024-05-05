@@ -20,7 +20,22 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 class Simulation(pygame.sprite.Sprite):
+    """
+    Manages the overall simulation environment.
+
+    Attributes:
+        environment (Environment): The environment object that contains walls and landmarks.
+        agent (Agent): The robot agent that navigates through the environment.
+        forward_kinematics (ForwardKinematics): Manages the computation of the robot's position based on the speed of the motors.
+        controls (Controls): Handles user input for controlling the robot.
+        previous_positions (list): Tracks the historical positions of the robot for plotting reasons.
+        previous_estimated_positions (list): Tracks the historical estimated positions from the Kalman filter for plotting reasons.
+    """
+
     def __init__(self):
+        """
+        Initializes the simulation environment and its components.
+        """
         super().__init__()
         self.environment = Environment()
         self.agent = Agent(self.environment)
@@ -30,6 +45,10 @@ class Simulation(pygame.sprite.Sprite):
         self.previous_estimated_positions = []
 
     def update(self):
+        """
+        Updates the state of the simulation for each frame, handling user input, kinematics calculations,
+        collision detection, and rendering.
+        """
         take_snapshot = self.controls.user_input(self.agent)
         self.forward_kinematics.calculate_forward_kinematics()
 
@@ -37,7 +56,6 @@ class Simulation(pygame.sprite.Sprite):
         # self.agent.calculate_forward_kinematics(take_snapshot)
         # self.environment.detect_landmarks(self.forward_kinematics.agent_pos)
 
-        # self.agent.robot_rotation()
         self.agent.rect.center = self.forward_kinematics.agent_pos
 
         screen.blit(self.agent.image, self.agent.rect)
@@ -47,20 +65,38 @@ class Simulation(pygame.sprite.Sprite):
         pygame.draw.circle(screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)), self.agent.radius, width=2)
         pygame.draw.rect(screen, "green", self.agent.rect, width=2)
 
-        self.draw_trajectory(screen)  # Change 'solid' to 'dotted' as needed
+        self.draw_trajectory(screen)
 
         # Display the current wheel speeds
         self.draw_text(screen, f"Left Wheel Speed: {self.agent.left_motor_speed:.2f}", (10, 10))
         self.draw_text(screen, f"Right Wheel Speed: {self.agent.right_motor_speed:.2f}", (10, 40))
 
     def draw_text(self, screen, text, position, font_size=24, color='red'):
-        # A function that draws the speed of each motor
+        """
+        Draws text on the screen at the specified position.
+
+        Args:
+            screen (Surface): The Pygame surface where text will be drawn.
+            text (str): The text to be drawn.
+            position (tuple): The (x, y) position for the text on the screen.
+            font_size (int): The font size for the text.
+            color (str): The color of the text.
+        """
         font = pygame.font.Font(None, font_size)  # None uses the default font, set font path for custom font
         text_surface = font.render(text, True, color)  # True means anti-aliased text.
         screen.blit(text_surface, position)
 
     def get_pixel_map(self, image_path, threshold=127):
-        # Load the image using OpenCV
+        """
+        Converts an image to a binary pixel map that indicates walls and passable areas.
+
+        Args:
+            image_path (str): The path to the image file.
+            threshold (int): The threshold value for binary conversion.
+
+        Returns:
+            numpy.ndarray: A binary array representing the passable areas.
+        """
         image = cv.imread(image_path, cv.IMREAD_GRAYSCALE)
         # Apply a binary threshold to distinguish walls from free space
         _, binary_image = cv.threshold(image, threshold, 255, cv.THRESH_BINARY)
@@ -69,7 +105,12 @@ class Simulation(pygame.sprite.Sprite):
         return binary_image
 
     def draw_trajectory(self, screen):
-        # Record the current position of the agent
+        """
+        Draws the trajectory of the robot and its estimated position on the screen.
+
+        Args:
+            screen (Surface): The Pygame surface where the trajectory will be drawn.
+        """
         self.previous_positions.append((int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)))
         self.previous_estimated_positions.append((int(self.agent.estimated_pos.x), int(self.agent.estimated_pos.y)))
 
@@ -82,13 +123,14 @@ class Simulation(pygame.sprite.Sprite):
             # pygame.draw.circle(screen, 'gray', (pos2[0]+20,pos2[1]+20), 2)
             pygame.draw.circle(screen, 'gray', (pos2[0], pos2[1]), 2)
 
-            count = len(self.previous_positions)
-            if count > 600:
+            if len(self.previous_positions) > 600:
                 self.previous_positions.pop(0)
                 self.previous_estimated_positions.pop(0)
 
     def run_simulation(self):
-        
+        """
+        Main loop for running the simulation, handling initialization and continuous updating of the simulation state.
+        """       
         background = pygame.image.load("images/background.jpg").convert()
         background = pygame.transform.scale(background, (WIDTH, HEIGHT))
         maze_image = self.get_pixel_map("images/maze.png")  # Get binary pixel map of the maze
@@ -101,7 +143,6 @@ class Simulation(pygame.sprite.Sprite):
                     exit()
             
             screen.blit(background, (0,0))
-            # Optionally display the maze for debugging (convert numpy array to surface)
             maze_surface = pygame.surfarray.make_surface(maze_image.swapaxes(0, 1))
             screen.blit(maze_surface, (0,0))
             
@@ -109,7 +150,6 @@ class Simulation(pygame.sprite.Sprite):
 
             pygame.display.update()
             clock.tick(FPS)
-            # print(pygame.time.get_ticks())
 
 if __name__ == "__main__":
     sim = Simulation()

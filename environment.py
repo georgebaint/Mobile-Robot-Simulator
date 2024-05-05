@@ -211,12 +211,19 @@ class Environment:
             pygame.draw.line(screen, (0, 255, 0), self.last_robot_pos, self.landmarks[id].position)
     
     def create_landmarks(self):
-        pos = [[147,150],
+        pos = [[149,157],
         [280,155],
         [385,279],
-        [178,227],
+        [150,307],
         [161,412],
-        [258,420]]
+        [258,420],
+        [410,543],
+        [528,280],
+        [652,155],
+        [774,408],
+        [867,155],
+        [1106,283],
+        [1009,438]]
 
         #ids = [f"L{x}" for x in range(1, len(pos)+1)]
         ids = np.arange(len(pos))
