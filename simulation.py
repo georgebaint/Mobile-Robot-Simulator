@@ -114,8 +114,6 @@ class Simulation(pygame.sprite.Sprite):
         self.previous_positions.append((int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)))
         self.previous_estimated_positions.append((int(self.agent.estimated_pos.x), int(self.agent.estimated_pos.y)))
 
-        count = 0
-
         # Redraw all previously drawn circles
         for pos1, pos2 in zip(self.previous_positions, self.previous_estimated_positions):
             # gray is for solid and the other colour will be used for kalman prediction

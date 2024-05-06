@@ -118,8 +118,9 @@ class Agent:
         u = np.array([velocity, omega]).T
 
         # Define process and measurement noise characteristics.
-        sigma_Rx, sigma_Ry, sigma_Rtheta = 0.3, 0.3, 0.5
-        sigma_Qx, sigma_Qy, sigma_Qtheta = 1, 1, 2
+        sigma_Rx, sigma_Ry, sigma_Rtheta = SIGMA_RX, SIGMA_RY, SIGMA_RZ
+        sigma_Qx, sigma_Qy, sigma_Qtheta = SIGMA_QX, SIGMA_QY, SIGMA_QZ
+        
         R = np.diag([sigma_Rx**2, sigma_Ry**2, sigma_Rtheta**2])
         Q = np.diag([sigma_Qx**2, sigma_Qy**2, sigma_Qtheta**2])
 

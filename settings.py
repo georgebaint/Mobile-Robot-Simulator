@@ -10,5 +10,12 @@ ROBOT_SIZE = 0.25
 ROBOT_MAX_SPEED = 3
 ROBOT_RADIUS = 15
 
-SPEED_DELTA = 0.5 #0.15
-ROTATION_SPEED_DELTA = 0.6 #0.2
+SPEED_DELTA = 0.15 #0.5
+ROTATION_SPEED_DELTA = 0.2 #0.6
+
+# Noise parameters
+
+# Standard Deviation of noise of motion model
+SIGMA_RX, SIGMA_RY, SIGMA_RZ = 0.2, 0.2, 0.1
+# Standard Deviation of noise of sensor model
+SIGMA_QX, SIGMA_QY, SIGMA_QZ = 0.2, 0.2, 0.1
