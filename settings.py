@@ -16,6 +16,6 @@ ROTATION_SPEED_DELTA = 0.2 #0.6
 # Noise parameters
 
 # Standard Deviation of noise of motion model
-SIGMA_RX, SIGMA_RY, SIGMA_RZ = 0.02, 0.02, 0.01
+SIGMA_RX, SIGMA_RY, SIGMA_RZ = 0.2, 0.2, 0.1
 # Standard Deviation of noise of sensor model
-SIGMA_QX, SIGMA_QY, SIGMA_QZ = 0.2, 0.2, 0.1
+SIGMA_QX, SIGMA_QY, SIGMA_QZ = 1, 1, 5

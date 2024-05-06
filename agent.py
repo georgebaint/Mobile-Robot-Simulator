@@ -99,6 +99,12 @@ class Agent:
         # self.sensors.run(self, screen)
         pass
 
+
+    def noise_on_motion_control(self, left_mean, left_std, right_mean, right_std):
+        self.left_motor_speed += np.random.normal(left_mean, left_std)
+        self.right_motor_speed += np.random.normal(right_mean, right_std)
+
+    
     def kalman_filter(self, forward_kinematics, take_snapshot=False):
         """
         Applies the Kalman filter to update the robot's state estimation based on sensor data and motion model.
@@ -108,8 +114,10 @@ class Agent:
         """
         # self.estimated_angle = forward_kinematics.agent_angle
         dt = 1
+
         omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
         velocity = (self.left_motor_speed + self.right_motor_speed) / 2
+
         A = np.eye(3)
         B = np.array([[dt * np.cos(self.estimated_angle), 0],
                       [dt * np.sin(self.estimated_angle), 0],

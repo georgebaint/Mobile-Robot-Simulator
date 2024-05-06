@@ -104,6 +104,10 @@ class Simulation(pygame.sprite.Sprite):
         collision detection, and rendering.
         """
         take_snapshot = self.controls.user_input(self.agent)
+
+        # Optionally we can have noise on the motors
+        self.agent.noise_on_motion_control(0.05, 0.1, 0.07, 0.1)
+
         self.forward_kinematics.calculate_forward_kinematics()
 
         self.agent.kalman_filter(self.forward_kinematics, take_snapshot)
@@ -117,7 +121,7 @@ class Simulation(pygame.sprite.Sprite):
         self.environment.draw_landmarks(screen)
         screen.blit(self.agent.image, self.agent.rect)
         pygame.draw.circle(screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)), self.agent.radius, width=2)
-        pygame.draw.rect(screen, "green", self.agent.rect, width=2)
+        # pygame.draw.rect(screen, "green", self.agent.rect, width=2)
 
         self.draw_trajectory(screen)
 
