@@ -106,6 +106,7 @@ class Agent:
         Args:
             forward_kinematics (ForwardKinematics): An instance containing the robot's calculated kinematics.
         """
+        self.estimated_angle = forward_kinematics.agent_angle
         dt = 1
         omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
         velocity = (self.left_motor_speed + self.right_motor_speed) / 2
@@ -114,10 +115,10 @@ class Agent:
                       [dt * np.sin(self.estimated_angle), 0],
                       [0, dt]])
 
-        u = np.array([omega, velocity]).T
+        u = np.array([velocity, omega]).T
 
         # Define process and measurement noise characteristics.
-        sigma_Rx, sigma_Ry, sigma_Rtheta = 3, 3, 5
+        sigma_Rx, sigma_Ry, sigma_Rtheta = 0.3, 0.3, 0.5
         sigma_Qx, sigma_Qy, sigma_Qtheta = 1, 1, 2
         R = np.diag([sigma_Rx**2, sigma_Ry**2, sigma_Rtheta**2])
         Q = np.diag([sigma_Qx**2, sigma_Qy**2, sigma_Qtheta**2])
