@@ -86,7 +86,7 @@ class Agent:
         self.left_motor_speed = 0
         self.motor_offset = self.radius * 2
         self.sensors = self.Sensors()
-        self.mu = np.zeros(3)
+        self.mu = np.array([ROBOT_START_X, ROBOT_START_Y, 0])
         self.sigma = np.eye(3)
 
     def run_sensors(self, screen):
@@ -99,6 +99,12 @@ class Agent:
         # self.sensors.run(self, screen)
         pass
 
+
+    def noise_on_motion_control(self, left_mean, left_std, right_mean, right_std):
+        self.left_motor_speed += np.random.normal(left_mean, left_std)
+        self.right_motor_speed += np.random.normal(right_mean, right_std)
+
+    
     def kalman_filter(self, forward_kinematics, take_snapshot=False):
         """
         Applies the Kalman filter to update the robot's state estimation based on sensor data and motion model.
@@ -106,10 +112,12 @@ class Agent:
         Args:
             forward_kinematics (ForwardKinematics): An instance containing the robot's calculated kinematics.
         """
-        self.estimated_angle = forward_kinematics.agent_angle
+        # self.estimated_angle = forward_kinematics.agent_angle
         dt = 1
+
         omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
         velocity = (self.left_motor_speed + self.right_motor_speed) / 2
+
         A = np.eye(3)
         B = np.array([[dt * np.cos(self.estimated_angle), 0],
                       [dt * np.sin(self.estimated_angle), 0],
@@ -118,8 +126,9 @@ class Agent:
         u = np.array([velocity, omega]).T
 
         # Define process and measurement noise characteristics.
-        sigma_Rx, sigma_Ry, sigma_Rtheta = 0.3, 0.3, 0.5
-        sigma_Qx, sigma_Qy, sigma_Qtheta = 1, 1, 2
+        sigma_Rx, sigma_Ry, sigma_Rtheta = SIGMA_RX, SIGMA_RY, SIGMA_RZ
+        sigma_Qx, sigma_Qy, sigma_Qtheta = SIGMA_QX, SIGMA_QY, SIGMA_QZ
+        
         R = np.diag([sigma_Rx**2, sigma_Ry**2, sigma_Rtheta**2])
         Q = np.diag([sigma_Qx**2, sigma_Qy**2, sigma_Qtheta**2])
 
