@@ -211,7 +211,8 @@ class Environment:
             pygame.draw.line(screen, (0, 255, 0), self.last_robot_pos, self.landmarks[id].position)
     
     def create_landmarks(self):
-        pos = [[147,150],
+        pos = [[145,150],
+        [145,310],
         [280,155],
         [385,279],
         [178,227],
@@ -241,41 +242,3 @@ class Environment:
             
         return landmarks
 
-if __name__ == "__main__":
-
-    env = Environment()
-    print(env.landmarks[0].position)
-
-# # print(env.maze_array)
-# # with open('image_with_axes.txt', 'w') as file:
-# #     # Write a header or some initial information if needed
-# #     file.write("x, y, value\n")
-
-# import matplotlib.pyplot as plt
-# import numpy as np
-
-# # Assume `binary_image` is your binary image loaded into a 2D NumPy array
-# binary_image = env.maze_array
-
-# # Display the image
-# plt.imshow(binary_image, cmap='gray')
-
-# # Add a grid
-# # plt.grid(which='both', color='red', linestyle='-', linewidth=0.5)
-
-# # Label the axes
-# plt.xlabel('x-axis')
-# plt.ylabel('y-axis')
-
-# # Set the ticks to match image coordinates
-# plt.xticks(range(binary_image.shape[1]))
-# plt.yticks(range(binary_image.shape[0]))
-
-# # Reverse the y-axis to match image coordinates
-# # plt.gca().invert_yaxis()
-
-# # Save the plot with axes to a file
-# plt.savefig('image_with_axes.png')
-
-# # Optionally display the plot
-# plt.show()

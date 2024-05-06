@@ -44,32 +44,6 @@ class Simulation(pygame.sprite.Sprite):
         self.previous_positions = []
         self.previous_estimated_positions = []
 
-    def update(self):
-        """
-        Updates the state of the simulation for each frame, handling user input, kinematics calculations,
-        collision detection, and rendering.
-        """
-        take_snapshot = self.controls.user_input(self.agent)
-        self.forward_kinematics.calculate_forward_kinematics()
-
-        self.agent.kalman_filter(self.forward_kinematics, take_snapshot)
-        # self.agent.calculate_forward_kinematics(take_snapshot)
-        # self.environment.detect_landmarks(self.forward_kinematics.agent_pos)
-
-        self.agent.rect.center = self.forward_kinematics.agent_pos
-
-        screen.blit(self.agent.image, self.agent.rect)
-        self.agent.run_sensors(screen)
-        self.environment.draw_landmarks(screen)
-        screen.blit(self.agent.image, self.agent.rect)
-        pygame.draw.circle(screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)), self.agent.radius, width=2)
-        pygame.draw.rect(screen, "green", self.agent.rect, width=2)
-
-        self.draw_trajectory(screen)
-
-        # Display the current wheel speeds
-        self.draw_text(screen, f"Left Wheel Speed: {self.agent.left_motor_speed:.2f}", (10, 10))
-        self.draw_text(screen, f"Right Wheel Speed: {self.agent.right_motor_speed:.2f}", (10, 40))
 
     def draw_text(self, screen, text, position, font_size=24, color='red'):
         """
@@ -118,17 +92,51 @@ class Simulation(pygame.sprite.Sprite):
         for pos1, pos2 in zip(self.previous_positions, self.previous_estimated_positions):
             # gray is for solid and the other colour will be used for kalman prediction
             pygame.draw.circle(screen, 'black', pos1, 2)
-            # pygame.draw.circle(screen, 'gray', (pos2[0]+20,pos2[1]+20), 2)
             pygame.draw.circle(screen, 'gray', (pos2[0], pos2[1]), 2)
 
-            if len(self.previous_positions) > 600:
+            if len(self.previous_positions) > 200:
                 self.previous_positions.pop(0)
                 self.previous_estimated_positions.pop(0)
+
+    def update(self):
+        """
+        Updates the state of the simulation for each frame, handling user input, kinematics calculations,
+        collision detection, and rendering.
+        """
+        take_snapshot = self.controls.user_input(self.agent)
+        self.forward_kinematics.calculate_forward_kinematics()
+
+        self.agent.kalman_filter(self.forward_kinematics, take_snapshot)
+        # self.agent.calculate_forward_kinematics(take_snapshot)
+        # self.environment.detect_landmarks(self.forward_kinematics.agent_pos)
+
+        self.agent.rect.center = self.forward_kinematics.agent_pos
+
+        screen.blit(self.agent.image, self.agent.rect)
+        self.agent.run_sensors(screen)
+        self.environment.draw_landmarks(screen)
+        screen.blit(self.agent.image, self.agent.rect)
+        pygame.draw.circle(screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)), self.agent.radius, width=2)
+        pygame.draw.rect(screen, "green", self.agent.rect, width=2)
+
+        self.draw_trajectory(screen)
+
+        # Display the current wheel speeds
+        self.draw_text(screen, f"Left Wheel Speed: {self.agent.left_motor_speed:.2f}", (10, 10))
+        self.draw_text(screen, f"Right Wheel Speed: {self.agent.right_motor_speed:.2f}", (10, 40))
+
+
+        self.draw_text(screen, f"Real position {self.forward_kinematics.agent_pos[0]:.0f}, {self.forward_kinematics.agent_pos[1]:.0f}", (1000,570))
+        self.draw_text(screen, f"Real angle {self.forward_kinematics.agent_angle:.0f}", (1000,590))
+        self.draw_text(screen, f"Estimated position {self.agent.estimated_pos[0]:.0f}, {self.agent.estimated_pos[1]:.0f}", (1000,610))
+        self.draw_text(screen, f"Estimated angle {self.agent.estimated_angle:.0f}", (1000,630))
+
+
 
     def run_simulation(self):
         """
         Main loop for running the simulation, handling initialization and continuous updating of the simulation state.
-        """       
+        """
         background = pygame.image.load("images/background.jpg").convert()
         background = pygame.transform.scale(background, (WIDTH, HEIGHT))
         maze_image = self.get_pixel_map("images/maze.png")  # Get binary pixel map of the maze

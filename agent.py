@@ -86,7 +86,7 @@ class Agent:
         self.left_motor_speed = 0
         self.motor_offset = self.radius * 2
         self.sensors = self.Sensors()
-        self.mu = np.zeros(3)
+        self.mu = np.array([ROBOT_START_X, ROBOT_START_Y, 0])
         self.sigma = np.eye(3)
 
     def run_sensors(self, screen):
@@ -106,7 +106,7 @@ class Agent:
         Args:
             forward_kinematics (ForwardKinematics): An instance containing the robot's calculated kinematics.
         """
-        self.estimated_angle = forward_kinematics.agent_angle
+        # self.estimated_angle = forward_kinematics.agent_angle
         dt = 1
         omega = (self.left_motor_speed - self.right_motor_speed) / self.motor_offset
         velocity = (self.left_motor_speed + self.right_motor_speed) / 2
