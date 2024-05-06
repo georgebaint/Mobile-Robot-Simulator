@@ -4,7 +4,6 @@ import cv2 as cv
 from settings import *
 import matplotlib.pyplot as plt
 import scipy
-import itertools
 from skspatial.objects import Circle
 
 class Environment:
@@ -27,6 +26,10 @@ class Environment:
         self.last_robot_pos = [0, 0]
 
     def get_pixel_map(self, image_path, threshold=254):
+        """
+        Pixel map initialization.
+
+        """
         # Load the image using OpenCV
         image = cv.imread(image_path, cv.IMREAD_GRAYSCALE)
         # Apply a binary threshold to distinguish walls from free space
@@ -42,16 +45,16 @@ class Environment:
         else:
             # If out of bounds, treat as a wall to prevent errors
             return True
-    
-    def is_landmark(self, x, y):
-        for item in self.landmarks:
-            if item.position - self.landmark_radius < x < item.position - self.landmark_radius and item.position - self.landmark_radius < x < item.position - self.landmark_radius: #TODO check if it needs change to cover corcle and not square
-                return True
-            else: 
-                return False #TODO 
 
     def detect_collision(self, old_pos, new_pos, take_snapshot=False):
-        
+        """
+        Checks whether a collision occured during a kinematics step.
+
+        Args:
+            old_pos: old position before the kinematics step
+            new_pos: new position after the kinematics step 
+        """
+
         circle = np.zeros((HEIGHT, WIDTH), dtype='uint8')
         circle = cv.circle(circle, (int(new_pos[0]), int(new_pos[1])), ROBOT_RADIUS, 255, -1)
 
@@ -118,6 +121,15 @@ class Environment:
         return np.sqrt(dx + dy)
 
     def wall_before_landmark(self, robot_pos, landmark_pos, take_snapshot):
+        """
+        Checks whether there is a wall on the segment between landmark and robot positions 
+        (landmarks are not visible to robot through the walls)
+
+        Args:
+            robot_pos: robot position
+            landmark_pos: landmark position
+        """
+
         line = np.zeros((HEIGHT, WIDTH), dtype='uint8')
         line = cv.line(line, (int(robot_pos[0]), int(robot_pos[1])), (int(landmark_pos[0]), int(landmark_pos[1])), 255, 2)
 
@@ -140,6 +152,16 @@ class Environment:
         return ((np.max(a) - np.min(a)) < 1) and ((np.max(b) - np.min(b)) < 1)
 
     def derive_location(self, ldm_ids, robot_pos, robot_angle, __estimated_angle):
+        """
+        Derives location based on 3 landmarks (and a bearing for the angle). 
+
+        Args:
+            ldm_ids: landmarks ids selected for observation
+            robot_pos: position of the robot
+            __estimated_angle: estimated angle of the robot for bearing measurement 
+            (actual angle is hidden here and the robot only uses its assumptions and the bearing)
+        """
+
         circles = []
         for id in ldm_ids:
             ldm_pos = self.landmarks[id].position
@@ -172,9 +194,15 @@ class Environment:
         bearing_observation = __estimated_angle - ldm_angle
         estimated_angle = bearing_observation + ldm_angle 
 
-        return np.array([fnx, fny, estimated_angle])
+        final_observation = np.array([fnx, fny, estimated_angle])
+        return final_observation
 
     def get_observation(self, forward_kinematics, take_snapshot, __estimated_angle):
+        """
+        Retrieves observation for the Kalman filter if possible
+
+        """
+
         landmark_srt = []
         self.current_selection = []
 
@@ -202,20 +230,12 @@ class Environment:
         self.last_robot_pos = robot_pos
         return self.derive_location(cur_ldm_ids, robot_pos, robot_angle, __estimated_angle), True
 
-        # order = np.arange(len(selected_ids))
-        # order_pms = list(itertools.permutations(order))
-        # for i in range(order_pms):
-        #     order_pms[]
-        
-        # observations = []
-        # for cur_order in order_pms:
-        #     cur_ldm_ids = cur_order[:3]
-        #     observations.append(self.derive_location(cur_ldm_ids, robot_pos, robot_angle))
-
-        # result = np.mean(observations, axis=0)
-        # return result, True
-
     def draw_landmarks(self, screen):
+        """
+        Drawing called on each frame
+
+        """
+
         for landmark in self.landmarks:
             landmark.draw_landmark(screen, self.landmark_radius)
 
@@ -223,6 +243,11 @@ class Environment:
             pygame.draw.line(screen, (0, 255, 0), self.last_robot_pos, self.landmarks[id].position)
     
     def create_landmarks(self):
+        """
+        Initializes landmarks
+
+        """
+
         pos = [[145,150],
         [145,310],
         [280,155],
@@ -253,4 +278,4 @@ class Environment:
             landmarks.append(self.Landmark(id=i, position=j))
             
         return landmarks
-
+    
