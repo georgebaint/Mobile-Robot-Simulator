@@ -139,7 +139,7 @@ class Environment:
         b = np.array([v1[1], v2[1], v3[1]])
         return ((np.max(a) - np.min(a)) < 1) and ((np.max(b) - np.min(b)) < 1)
 
-    def derive_location(self, ldm_ids, robot_pos, robot_angle):
+    def derive_location(self, ldm_ids, robot_pos, robot_angle, __estimated_angle):
         circles = []
         for id in ldm_ids:
             ldm_pos = self.landmarks[id].position
@@ -160,9 +160,21 @@ class Environment:
                         fnx = pt1[i][0]
                         fny = pt1[i][1]
 
-        return np.array([fnx, fny, robot_angle])
+        #bearing part
+        ldm_pos = self.landmarks[ldm_ids[0]].position
+        vec = np.subtract(ldm_pos, robot_pos)
+        
+        if np.linalg.norm(vec) < 1e-16:
+            ldm_pos = self.landmarks[ldm_ids[1]].position
+            vec = ldm_pos - robot_pos
+        vec_n = vec / (np.linalg.norm(vec) + 1e-16)
+        ldm_angle = np.arctan2(vec_n[1], vec_n[0])
+        bearing_observation = __estimated_angle - ldm_angle
+        estimated_angle = bearing_observation + ldm_angle 
 
-    def get_observation(self, forward_kinematics, take_snapshot=False):
+        return np.array([fnx, fny, estimated_angle])
+
+    def get_observation(self, forward_kinematics, take_snapshot, __estimated_angle):
         landmark_srt = []
         self.current_selection = []
 
@@ -188,7 +200,7 @@ class Environment:
         cur_ldm_ids = selected_ids[:3]
         self.current_selection = cur_ldm_ids
         self.last_robot_pos = robot_pos
-        return self.derive_location(cur_ldm_ids, robot_pos, robot_angle), True
+        return self.derive_location(cur_ldm_ids, robot_pos, robot_angle, __estimated_angle), True
 
         # order = np.arange(len(selected_ids))
         # order_pms = list(itertools.permutations(order))

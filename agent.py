@@ -129,7 +129,7 @@ class Agent:
 
         # Measurement update.
         # z = np.array([forward_kinematics.agent_pos.x, forward_kinematics.agent_pos.y, forward_kinematics.agent_angle])
-        z, is_located = self.environment.get_observation(forward_kinematics, take_snapshot)
+        z, is_located = self.environment.get_observation(forward_kinematics, take_snapshot, mu_prediction[2])
 
         if is_located:
             #Correction
