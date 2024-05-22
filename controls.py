@@ -3,10 +3,25 @@ from settings import *
 import sys
 
 class Controls:
+    """
+    Manages user input for adjusting the motor speeds of the robot.
+
+    Attributes:
+        speed_on_hold (bool): A flag to maintain the last set speeds if no new input is detected.
+    """
     def __init__(self):
         self.speed_on_hold = True
         
     def user_input(self, agent):
+        """
+        Processes key inputs from the user to control the robotic agent's motors and handle system commands.
+
+        Args:
+            agent (Agent): The robot agent being controlled.
+        
+        Returns:
+            bool: True if a snapshot should be taken (when 'N' is pressed), False otherwise.
+        """
         keys = pygame.key.get_pressed()
         
         any_key_pressed = False
