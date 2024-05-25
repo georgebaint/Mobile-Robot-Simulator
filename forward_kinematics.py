@@ -69,6 +69,9 @@ class ForwardKinematics:
         Rotates the robot's image according to the current orientation angle for visual representation.
         Also updates the sensor's angle data.
         """
-        self.agent.image = pygame.transform.rotate(self.agent.base_robot_image, -self.agent_angle)
-        self.agent.rect = self.agent.image.get_rect(center=self.agent_pos)
+        try:
+            self.agent.image = pygame.transform.rotate(self.agent.base_robot_image, -self.agent_angle)
+            self.agent.rect = self.agent.image.get_rect(center=self.agent_pos)
+        except:
+            pass
         self.agent.sensors.agent_angle = self.agent_angle

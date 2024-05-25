@@ -7,7 +7,6 @@ import scipy
 from skspatial.objects import Circle
 
 class Environment:
-
     class Landmark:
         def __init__(self, id, position):
             self.id = id
