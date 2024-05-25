@@ -107,7 +107,6 @@ class Agent:
     def noise_on_motion_control(self, left_mean, left_std, right_mean, right_std):
         self.left_motor_speed += np.random.normal(left_mean, left_std)
         self.right_motor_speed += np.random.normal(right_mean, right_std)
-
     
     def kalman_filter(self, forward_kinematics, take_snapshot=False):
         """
