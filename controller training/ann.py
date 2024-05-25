@@ -33,9 +33,9 @@ class Ann:
         
         return first_seven_array, two_values_array
 
-    def create_weights(self, size1, size2):
-        weights = np.random.normal(0.0, 0.01, (size1, size2))
-        return weights
+    # def create_weights(self, size1, size2):
+    #     weights = np.random.normal(0.0, 0.01, (size1, size2))
+    #     return weights
     
     def relu(self, Z):
 
@@ -57,9 +57,9 @@ class Ann:
         self.output = self.sigmoid(np.dot(self.layer1, self.weights2))
         return self.output
 
-    def predict(self, inputs):
+    def calculate_output(self, inputs):
         """
-        Predict the output for given input.
+        Calculate the output for given input.
         """
         return self.feedforward(np.asarray(inputs))
     
@@ -74,5 +74,5 @@ if __name__ == "__main__":
     
     # Ensuring the input has the correct dimension (14 elements)
     inputs = np.array([20, 10, 15, 30, 40, 60, 50, 55, 5, 80, 90, 23, 0, 0])  # Added two zeros to match the input size
-    prediction = ann.predict(inputs)
+    prediction = ann.calculate_output(inputs)
     print("Prediction:", prediction)
