@@ -143,7 +143,7 @@ class Simulation(pygame.sprite.Sprite):
         """
         background = pygame.image.load("images/background.jpg").convert()
         background = pygame.transform.scale(background, (WIDTH, HEIGHT))
-        maze_image = self.get_pixel_map("images/fourth_maze.png")  # Get binary pixel map of the maze
+        maze_image = self.get_pixel_map("images/second_maze.png")  # Get binary pixel map of the maze
 
         while True:
             keys = pygame.key.get_pressed()

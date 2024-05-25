@@ -18,9 +18,9 @@ class Environment:
             pygame.draw.circle(screen, ((0, 0, 255) if not self.flag else (255, 255, 0)), self.position, radius)
 
     def __init__(self):       
-        self.maze_array = self.get_pixel_map("images/fourth_maze.png")  # Get binary pixel map of the maze
+        self.maze_array = self.get_pixel_map("images/second_maze.png")  # Get binary pixel map of the maze
         # self.landmarks_positions = self.create_landmarks()
-        self.landmarks = self.create_landmarks()
+        self.landmarks = self.create_landmarks('second_maze')
         self.landmark_radius = 5
         self.current_selection = []
         self.last_robot_pos = [0, 0]
@@ -242,33 +242,115 @@ class Environment:
         for id in self.current_selection:
             pygame.draw.line(screen, (0, 255, 0), self.last_robot_pos, self.landmarks[id].position)
     
-    def create_landmarks(self):
+    def create_landmarks(self, name):
         """
         Initializes landmarks
 
         """
+        if name == 'maze':
+            pos = [[145,150],
+            [145,310],
+            [280,155],
+            [385,279],
+            [178,227],
+            [161,412],
+            [258,420],
+            [53,653],
+            [500,653],
+            [409,546],
+            [627,426],
+            [626,305],
+            [412,49],
+            [744,52],
+            [1226,51],
+            [1226,279],
+            [581,157],
+            [1006,185],
+            [1010,430],
+            [774,651],
+            [770,549]]
 
-        pos = [[145,150],
-        [145,310],
-        [280,155],
-        [385,279],
-        [178,227],
-        [161,412],
-        [258,420],
-        [53,653],
-        [500,653],
-        [409,546],
-        [627,426],
-        [626,305],
-        [412,49],
-        [744,52],
-        [1226,51],
-        [1226,279],
-        [581,157],
-        [1006,185],
-        [1010,430],
-        [774,651],
-        [770,549]]
+        elif name == 'fourth_maze':
+            pos =[[44,57],
+            [44,202],
+            [44,297],
+            [134,298],
+            [134,434],
+            [44,432],
+            [41,438],
+            [44,649],
+            [199,654],
+            [363,651],
+            [363,479],
+            [387,357],
+            [387,283],
+            [490,284],
+            [490,355],
+            [566,481],
+            [566,648],
+            [720,654],
+            [720,604],
+            [843,604],
+            [843,649],
+            [710,216],
+            [710,57],
+            [868,212],
+            [868,56],
+            [1178,653],
+            [1178,488],
+            [1006,479],
+            [1006,326],
+            [1176,322],
+            [1178,57]]
+
+        elif name == 'third_maze':
+            pos = [[68,28],
+                [68,290],
+                [68,501],
+                [68,635],
+                [354,453],
+                [354,209],
+                [354,642],
+                [886,453],
+                [886,209],
+                [1204,639],
+                [1204,358],
+                [1204,28],
+                [634,209],
+                [636,26]]
+        
+        elif name == 'second_maze':
+            pos = [[48,42],
+                [48,193],
+                [584,197],
+                [584,248],
+                [48,252],
+                [48,443],
+                [48,663],
+                [225,663],
+                [225,482],
+                [316,482],
+                [316,661],
+                [555,665],
+                [560,505],
+                [560,439],
+                [889,665],
+                [1240,663],
+                [1240,508],
+                [1011,505],
+                [810,505],
+                [786,441],
+                [956,439],
+                [956,358],
+                [1240,357],
+                [1240,42],
+                [925,42],
+                [925,198],
+                [779,198],
+                [779,42],
+                [560,38]]
+
+
 
         #ids = [f"L{x}" for x in range(1, len(pos)+1)]
         ids = np.arange(len(pos))
@@ -279,3 +361,38 @@ class Environment:
             
         return landmarks
     
+if __name__ == "__main__":
+            # print(env.maze_array)
+    # with open('image_with_axes.txt', 'w') as file:
+    #     # Write a header or some initial information if needed
+    #     file.write("x, y, value\n")
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    env = Environment()
+    # Assume `binary_image` is your binary image loaded into a 2D NumPy array
+    binary_image = env.maze_array
+
+    # Display the image
+    plt.imshow(binary_image, cmap='gray')
+
+    # Add a grid
+    # plt.grid(which='both', color='red', linestyle='-', linewidth=0.5)
+
+    # Label the axes
+    plt.xlabel('x-axis')
+    plt.ylabel('y-axis')
+
+    # Set the ticks to match image coordinates
+    plt.xticks(range(binary_image.shape[1]))
+    plt.yticks(range(binary_image.shape[0]))
+
+    # Reverse the y-axis to match image coordinates
+    # plt.gca().invert_yaxis()
+
+    # Save the plot with axes to a file
+    plt.savefig('image_with_axes.png')
+
+    # Optionally display the plot
+    plt.show()
