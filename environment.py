@@ -18,7 +18,7 @@ class Environment:
             pygame.draw.circle(screen, ((0, 0, 255) if not self.flag else (255, 255, 0)), self.position, radius)
 
     def __init__(self):       
-        self.maze_array = self.get_pixel_map("images/maze.png")  # Get binary pixel map of the maze
+        self.maze_array = self.get_pixel_map("images/fourth_maze.png")  # Get binary pixel map of the maze
         # self.landmarks_positions = self.create_landmarks()
         self.landmarks = self.create_landmarks()
         self.landmark_radius = 5

@@ -106,7 +106,7 @@ class Simulation(pygame.sprite.Sprite):
         take_snapshot = self.controls.user_input(self.agent)
 
         # Optionally we can have noise on the motors
-        self.agent.noise_on_motion_control(0.05, 0.1, 0.07, 0.1)
+        # self.agent.noise_on_motion_control(0.05, 0.1, 0.07, 0.1)
 
         self.forward_kinematics.calculate_forward_kinematics()
 
@@ -117,7 +117,7 @@ class Simulation(pygame.sprite.Sprite):
         self.agent.rect.center = self.forward_kinematics.agent_pos
 
         screen.blit(self.agent.image, self.agent.rect)
-        self.agent.run_sensors(screen)
+        distances = self.agent.run_sensors(screen)
         self.environment.draw_landmarks(screen)
         screen.blit(self.agent.image, self.agent.rect)
         pygame.draw.circle(screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)), self.agent.radius, width=2)
@@ -143,7 +143,7 @@ class Simulation(pygame.sprite.Sprite):
         """
         background = pygame.image.load("images/background.jpg").convert()
         background = pygame.transform.scale(background, (WIDTH, HEIGHT))
-        maze_image = self.get_pixel_map("images/maze.png")  # Get binary pixel map of the maze
+        maze_image = self.get_pixel_map("images/fourth_maze.png")  # Get binary pixel map of the maze
 
         while True:
             keys = pygame.key.get_pressed()

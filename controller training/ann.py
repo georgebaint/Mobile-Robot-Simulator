@@ -40,7 +40,7 @@ class Ann:
     def relu(self, Z):
 
         """
-        Just the implementation of the relu activation function
+        Implementation of the relu activation function
         :param Z: Tne value of the neuron
         :return: 0 if the neuron is turned off, Z otherwise
         """
@@ -51,7 +51,7 @@ class Ann:
 
     def feedforward(self, inputs):
         """
-        Forward propagate through the network.
+        Forward propagation through the network.
         """
         self.layer1 = self.sigmoid(np.dot(inputs, self.weights1))
         self.output = self.sigmoid(np.dot(self.layer1, self.weights2))
@@ -61,7 +61,7 @@ class Ann:
         """
         Predict the output for given input.
         """
-        return self.feedforward(inputs)
+        return self.feedforward(np.asarray(inputs))
     
 if __name__ == "__main__":
     
