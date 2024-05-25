@@ -1,6 +1,11 @@
-from agent import Agent
-from environment import Environment
-from forward_kinematics import ForwardKinematics
+#from mobile_robot import Agent, Environemnt, ForwardKinematics
+from mobile_robot import Agent
+
+# from agent import Agent
+# from environment import Environment
+# from forward_kinematics import ForwardKinematics
+
+
 from controls import Controls
 from settings import *
 
