@@ -74,6 +74,7 @@ class Agent:
         """
 
         self.environment = environment
+        self.estimated_pos = pygame.math.Vector2(ROBOT_START_X, ROBOT_START_Y)
         
         try:
             self.image = pygame.transform.rotozoom(pygame.image.load("images/robot.png").convert_alpha(), 0, ROBOT_SIZE)
@@ -83,9 +84,7 @@ class Agent:
         except:
             self.radius = 15
             self.rect = None
-            pass
 
-        self.estimated_pos = pygame.math.Vector2(ROBOT_START_X, ROBOT_START_Y)
         self.estimated_angle = 0
         self.collision = False
         self.right_motor_speed = 0

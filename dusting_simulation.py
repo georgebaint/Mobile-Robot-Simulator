@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 WIDTH = 1280
 HEIGHT = 720
-FPS = 60
+FPS = 120
 
 class DustingSimulation:
     def __init__(self, genotype=None, visualize=False):        
@@ -63,7 +63,7 @@ class DustingSimulation:
         return score
 
 if __name__ == '__main__':
-    sim = DustingSimulation(None, False)
+    sim = DustingSimulation(None, True)
     score = sim.evaluate(1000)
     print('final score %d' % (score))
 
