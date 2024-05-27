@@ -1,13 +1,11 @@
 import numpy as np
 
-
 class Ann:
     def __init__(self, genotypes):
         self.weights1, self.weights2 = self.extract_elements(genotypes)
         # self.weights2 = weights2
         # self.genotypes = genotypes
         self.prev_output = [0, 0]
-
     
     def extract_elements(self, genotypes):
         all_first_seven = []

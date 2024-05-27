@@ -135,8 +135,6 @@ class Simulation(pygame.sprite.Sprite):
         self.draw_text(screen, f"Estimated position {self.agent.estimated_pos[0]:.0f}, {self.agent.estimated_pos[1]:.0f}", (1000,610))
         self.draw_text(screen, f"Estimated angle {self.agent.estimated_angle:.0f}", (1000,630))
 
-
-
     def run_simulation(self):
         """
         Main loop for running the simulation, handling initialization and continuous updating of the simulation state.

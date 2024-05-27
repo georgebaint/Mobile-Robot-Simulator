@@ -11,12 +11,13 @@ from tqdm import tqdm
 from settings import *
 
 class DustingSimulation:
-    def __init__(self, maze_id, genotype=None, visualize=False):        
+    def __init__(self, maze_id, genotype=None):        
                 
         maze = cv.imread('images/maze/m%d.png' % (maze_id), cv.IMREAD_GRAYSCALE)
         self.pixel_map = cv.resize(maze, (WIDTH, HEIGHT), interpolation=cv.INTER_NEAREST)
-        
-        if visualize:
+        self.screen = None
+
+        if VISUALIZE:
             pygame.init()
             self.clock = pygame.time.Clock()
             self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -27,7 +28,26 @@ class DustingSimulation:
         self.forward_kinematics = ForwardKinematics(self.agent, self.environment)
         
         self.genotype = genotype
-        self.visualize = visualize
+
+    def run_ann(self, iter, ann):
+        score = 0
+        for i in tqdm(range(iter)):
+            score += self.environment.suck(self.forward_kinematics.agent_pos)
+
+            self.forward_kinematics.calculate_forward_kinematics()
+            self.agent.kalman_filter(self.forward_kinematics)
+            distances = self.agent.run_sensors(self.screen)
+            input = distances
+
+            input.append(self.agent.left_motor_speed) 
+            input.append(self.agent.right_motor_speed)
+
+            spds = ann.calculate_output(distances)
+            self.agent.left_motor_speed = spds[0]
+            self.agent.right_motor_speed = spds[1]
+
+        max_score = self.environment.get_max_score() 
+        return (float(score) / float(max_score))
 
     def evaluate(self, iter):
         change_counter = COUNTER_DROP
@@ -49,13 +69,16 @@ class DustingSimulation:
                 self.agent.left_motor_speed, self.agent.right_motor_speed = spd[0,0], spd[0,1]
                 change_counter = COUNTER_DROP
             
+            if VISUALIZE:
+                self.screen.blit(self.maze_surface, (0,0))
+
             self.forward_kinematics.calculate_forward_kinematics()
             self.agent.kalman_filter(self.forward_kinematics)
+            distances = self.agent.run_sensors(self.screen)
         
-            if self.visualize:
+            if VISUALIZE:
                 self.agent.rect.center = self.forward_kinematics.agent_pos
 
-                self.screen.blit(self.maze_surface, (0,0))
                 self.environment.draw_landmarks(self.screen)
                 self.screen.blit(self.agent.image, self.agent.rect)
                 if prev_cc != [-1, -1]:
@@ -92,7 +115,7 @@ class DustingSimulation:
         screen.blit(text_surface, position)
 
 if __name__ == '__main__':
-    sim = DustingSimulation(MAZE_NUM, None, False)
+    sim = DustingSimulation(MAZE_NUM, None)
     score = sim.evaluate(ITER_COUNT)
     print('final score %d' % (score))
 
@@ -100,7 +123,6 @@ if __name__ == '__main__':
 
 # prepare the training pipeline:
 
-# call sensors on each step
 # feed sensor data to ANN and reset the speed on the wheel
 # add dust and dust detection, punish collisions
 # fitness = (dust collected/dust total) * w1 + (num of states with no collision/total iters) * w2 (w1=1, w2=0.2)?

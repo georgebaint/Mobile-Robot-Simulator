@@ -23,7 +23,11 @@ class Environment:
         maze = cv.imread('images/maze/m%d.png' % (maze_id), cv.IMREAD_GRAYSCALE)
         self.maze_array = cv.resize(maze, (WIDTH, HEIGHT), interpolation=cv.INTER_NEAREST)
         self.inverted_maze_array = cv.bitwise_not(self.maze_array)
-        self.dust = np.ones((WIDTH, HEIGHT))
+        self.dust = np.ones((HEIGHT, WIDTH))
+
+        idx = np.where(self.inverted_maze_array > 0)
+        self.dust[idx] = 0
+        self.max_score = np.sum(self.dust)
 
         self.landmarks = self.create_landmarks(maze_id)
         self.landmark_radius = LANDMARK_RADIUS
@@ -41,11 +45,14 @@ class Environment:
         for x in range(x0 - r, x0 + r + 1):
             for y in range(y0 - r, y0 + r + 1):
                 if (x - x0)**2 + (y - y0)**2 <= r**2:
-                    if self.in_bounds(x, y) and self.dust[x, y]:
-                        self.dust[x, y] = 0
+                    if self.in_bounds(x, y) and self.dust[y, x]:
+                        self.dust[y, x] = 0
                         score += 1
         return score
-
+    
+    def get_max_score(self):
+        return self.max_score
+    
     def is_wall(self, x, y):
         # Ensure x and y are within the bounds of the maze array
         if self.in_bounds(x, y):

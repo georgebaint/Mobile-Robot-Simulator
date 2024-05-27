@@ -49,7 +49,8 @@ class Agent:
             num_sensors = 12
             max_sensor_length = 200
             tab20 = plt.get_cmap("tab20").colors  # Color map for sensor visualization.
-            font = pygame.font.Font(None, 24)
+            if VISUALIZE:
+                font = pygame.font.Font(None, 24)
             distances = []
 
             for i in range(num_sensors):
@@ -65,9 +66,11 @@ class Agent:
                 start_pos = (int(self.agent_position.x + agent.radius * math.cos(angle)), int(self.agent_position.y + agent.radius * math.sin(angle)))
                 end_pos = (int(self.agent_position.x + distance * math.cos(angle)), int(self.agent_position.y + distance * math.sin(angle)))
                 color = tuple(int(255 * x) for x in tab20[i % len(tab20)])
-                pygame.draw.line(screen, color, start_pos, end_pos, 2)
-                distance_text = font.render(f"{distance - agent.radius}", True, (255, 0, 255))
-                screen.blit(distance_text, end_pos)
+                
+                if VISUALIZE:
+                    pygame.draw.line(screen, color, start_pos, end_pos, 2)
+                    distance_text = font.render(f"{distance - agent.radius}", True, (255, 0, 255))
+                    screen.blit(distance_text, end_pos)
                 distances.append(distance)
             return distances
 
@@ -85,7 +88,7 @@ class Agent:
             self.radius = self.base_robot_image.get_width() // 2
             self.rect = self.base_robot_image.get_rect(center=self.estimated_pos)
         except:
-            self.radius = 15
+            self.radius = ROBOT_RADIUS
             self.rect = None
 
         self.estimated_angle = 0
