@@ -366,7 +366,7 @@ class Environment:
     
 if __name__ == "__main__":
             # print(env.maze_array)
-    # with open('image_with_axes.txt', 'w') as file:
+    # with open('images/image_with_axes.txt', 'w') as file:
     #     # Write a header or some initial information if needed
     #     file.write("x, y, value\n")
 
@@ -395,7 +395,7 @@ if __name__ == "__main__":
     # plt.gca().invert_yaxis()
 
     # Save the plot with axes to a file
-    plt.savefig('image_with_axes.png')
+    plt.savefig('images/image_with_axes.png')
 
     # Optionally display the plot
     plt.show()
