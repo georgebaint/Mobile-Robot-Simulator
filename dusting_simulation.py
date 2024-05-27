@@ -11,9 +11,9 @@ from tqdm import tqdm
 WIDTH = 1280
 HEIGHT = 720
 FPS = 120
-ITER_COUNT = 100
+ITER_COUNT = 1000
 COUNTER_DROP = 100
-MAZE_NUM = 4
+MAZE_NUM = 2
 
 class DustingSimulation:
     def __init__(self, maze_id, genotype=None, visualize=False):        
@@ -41,6 +41,8 @@ class DustingSimulation:
         for i in tqdm(range(iter)):
             change_counter -= 1
             if change_counter == 0:
+                score_change = self.environment.suck(self.forward_kinematics.agent_pos)
+                score += score_change
                 spd = [[1, 1], [-1, -1], [1, -1], [-1, 0], [0, 1]]
                 spd = np.array(spd)
                 np.random.shuffle(spd)
@@ -66,10 +68,9 @@ if __name__ == '__main__':
 
 # TODO
 
-# refactor environment
-# fix switching between the maps
 # check if everything works - output position, speed on both wheels
-# add dust, add sporadic dust collection, test amount of dust collected
+# test amount of dust collected
+# connect the Kalman filter
 
 # call sensors on each step
 # feed sensor data to ANN and reset the speed on the wheel

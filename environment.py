@@ -23,15 +23,32 @@ class Environment:
         maze = cv.imread('images/maze/m%d.png' % (maze_id), cv.IMREAD_GRAYSCALE)
         self.maze_array = cv.resize(maze, (WIDTH, HEIGHT), interpolation=cv.INTER_NEAREST)
         self.inverted_maze_array = cv.bitwise_not(self.maze_array)
+        self.dust = np.ones((WIDTH, HEIGHT))
 
         self.landmarks = self.create_landmarks(maze_id)
         self.landmark_radius = 5
         self.current_selection = []
         self.last_robot_pos = [ROBOT_START_X, ROBOT_START_Y]
 
+    def in_bounds(self, x, y):
+        return 0 <= x < WIDTH and 0 <= y < HEIGHT
+
+    def suck(self, pos):
+        x0, y0 = int(pos.x), int(pos.y)
+        r = ROBOT_RADIUS
+
+        score = 0
+        for x in range(x0 - r, x0 + r + 1):
+            for y in range(y0 - r, y0 + r + 1):
+                if (x - x0)**2 + (y - y0)**2 <= r**2:
+                    if self.in_bounds(x, y) and self.dust[x, y]:
+                        self.dust[x, y] = 0
+                        score += 1
+        return score
+
     def is_wall(self, x, y):
         # Ensure x and y are within the bounds of the maze array
-        if 0 <= x < self.maze_array.shape[1] and 0 <= y < self.maze_array.shape[0]:
+        if self.in_bounds(x, y):
             return self.maze_array[y][x] == 0
         else:
             # If out of bounds, treat as a wall to prevent errors
