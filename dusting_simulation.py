@@ -63,7 +63,7 @@ class DustingSimulation:
         return score
 
 if __name__ == '__main__':
-    sim = DustingSimulation(None, True)
+    sim = DustingSimulation(None, False)
     score = sim.evaluate(1000)
     print('final score %d' % (score))
 
@@ -78,3 +78,4 @@ if __name__ == '__main__':
 # the score should mean the same thing for all simulations
 # robot size matters since it impacts sensors and subsequent motion => robot size stays the same
 # maze size can differ but might not be optimal for model convergence
+

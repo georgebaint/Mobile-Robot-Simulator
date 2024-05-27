@@ -50,6 +50,7 @@ class Agent:
             max_sensor_length = 200
             tab20 = plt.get_cmap("tab20").colors  # Color map for sensor visualization.
             font = pygame.font.Font(None, 24)
+            distances = []
 
             for i in range(num_sensors):
                 angle = math.radians((360 / num_sensors) * i + self.agent_angle)
@@ -67,6 +68,8 @@ class Agent:
                 pygame.draw.line(screen, color, start_pos, end_pos, 2)
                 distance_text = font.render(f"{distance - agent.radius}", True, (255, 0, 255))
                 screen.blit(distance_text, end_pos)
+                distances.append(distance)
+            return distances
 
     def __init__(self, environment):
         """
@@ -101,8 +104,9 @@ class Agent:
         Args:
             screen (Surface): The Pygame screen surface to draw sensor beams.
         """
-        # self.sensors.run(self, screen)
-        pass
+        distances = self.sensors.run(self, screen)
+        # pass
+        return distances
 
 
     def noise_on_motion_control(self, left_mean, left_std, right_mean, right_std):
