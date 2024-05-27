@@ -11,25 +11,23 @@ from tqdm import tqdm
 WIDTH = 1280
 HEIGHT = 720
 FPS = 120
+ITER_COUNT = 100
+COUNTER_DROP = 100
+MAZE_NUM = 4
 
 class DustingSimulation:
-    def __init__(self, genotype=None, visualize=False):        
-        
-        background = cv.imread('images/background.jpg')
-        self.background = cv.resize(background, (WIDTH, HEIGHT))
-        
-        maze = cv.imread('images/maze.png', cv.IMREAD_GRAYSCALE)
-        _, pixel_map = cv.threshold(maze, 127, 255, cv.THRESH_BINARY)
-        self.pixel_map = cv.resize(pixel_map, (WIDTH, HEIGHT))
+    def __init__(self, maze_id, genotype=None, visualize=False):        
+                
+        maze = cv.imread('images/maze/m%d.png' % (maze_id), cv.IMREAD_GRAYSCALE)
+        self.pixel_map = cv.resize(maze, (WIDTH, HEIGHT), interpolation=cv.INTER_NEAREST)
         
         if visualize:
             pygame.init()
             self.clock = pygame.time.Clock()
             self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-            self.background_surface = pygame.surfarray.make_surface(background.swapaxes(0, 1))
             self.maze_surface = pygame.surfarray.make_surface(self.pixel_map.swapaxes(0, 1))
         
-        self.environment = Environment()
+        self.environment = Environment(maze_id)
         self.agent = Agent(self.environment)
         self.forward_kinematics = ForwardKinematics(self.agent, self.environment)
         
@@ -37,24 +35,23 @@ class DustingSimulation:
         self.visualize = visualize
 
     def evaluate(self, iter):
-        change_counter = 100
+        change_counter = COUNTER_DROP
 
         score = 0
         for i in tqdm(range(iter)):
             change_counter -= 1
             if change_counter == 0:
-                spd = [[1, 1], [-1, -1], [1, -1]]
+                spd = [[1, 1], [-1, -1], [1, -1], [-1, 0], [0, 1]]
                 spd = np.array(spd)
                 np.random.shuffle(spd)
                 self.agent.left_motor_speed, self.agent.right_motor_speed = spd[0,0], spd[0,1]
-                change_counter = 100
+                change_counter = COUNTER_DROP
             
             self.forward_kinematics.calculate_forward_kinematics()
         
             if self.visualize:
                 self.agent.rect.center = self.forward_kinematics.agent_pos
 
-                self.screen.blit(self.background_surface, (0,0))
                 self.screen.blit(self.maze_surface, (0,0))
                 self.screen.blit(self.agent.image, self.agent.rect)
                 pygame.draw.circle(self.screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)), self.agent.radius, width=2)
@@ -63,11 +60,17 @@ class DustingSimulation:
         return score
 
 if __name__ == '__main__':
-    sim = DustingSimulation(None, False)
-    score = sim.evaluate(1000)
+    sim = DustingSimulation(MAZE_NUM, None, True)
+    score = sim.evaluate(ITER_COUNT)
     print('final score %d' % (score))
 
-#TODO
+# TODO
+
+# refactor environment
+# fix switching between the maps
+# check if everything works - output position, speed on both wheels
+# add dust, add sporadic dust collection, test amount of dust collected
+
 # call sensors on each step
 # feed sensor data to ANN and reset the speed on the wheel
 # add dust and dust detection, punish collisions

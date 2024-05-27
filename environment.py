@@ -1,10 +1,12 @@
 import pygame
 import numpy as np 
 import cv2 as cv
-from settings import *
 import matplotlib.pyplot as plt
 import scipy
 from skspatial.objects import Circle
+
+from settings import *
+from landmarks import *
 
 class Environment:
     class Landmark:
@@ -14,33 +16,23 @@ class Environment:
             self.flag = False
 
         def draw_landmark(self, screen, radius):
-            pygame.draw.circle(screen, ((0, 0, 255) if not self.flag else (255, 255, 0)), self.position, radius)
+            color = (0, 0, 255) if not self.flag else (255, 255, 0)
+            pygame.draw.circle(screen, color, self.position, radius)
 
-    def __init__(self):       
-        self.maze_array = self.get_pixel_map("images/second_maze.png")  # Get binary pixel map of the maze
-        # self.landmarks_positions = self.create_landmarks()
-        self.landmarks = self.create_landmarks('second_maze')
+    def __init__(self, maze_id):
+        maze = cv.imread('images/maze/m%d.png' % (maze_id), cv.IMREAD_GRAYSCALE)
+        self.maze_array = cv.resize(maze, (WIDTH, HEIGHT), interpolation=cv.INTER_NEAREST)
+        self.inverted_maze_array = cv.bitwise_not(self.maze_array)
+
+        self.landmarks = self.create_landmarks(maze_id)
         self.landmark_radius = 5
         self.current_selection = []
-        self.last_robot_pos = [0, 0]
-
-    def get_pixel_map(self, image_path, threshold=254):
-        """
-        Pixel map initialization.
-
-        """
-        # Load the image using OpenCV
-        image = cv.imread(image_path, cv.IMREAD_GRAYSCALE)
-        # Apply a binary threshold to distinguish walls from free space
-        _, binary_image = cv.threshold(image, threshold, 255, cv.THRESH_BINARY_INV)
-        # Convert binary image to match the display dimensions
-        binary_image = cv.resize(binary_image, (WIDTH, HEIGHT))
-        return binary_image
+        self.last_robot_pos = [ROBOT_START_X, ROBOT_START_Y]
 
     def is_wall(self, x, y):
         # Ensure x and y are within the bounds of the maze array
         if 0 <= x < self.maze_array.shape[1] and 0 <= y < self.maze_array.shape[0]:
-            return self.maze_array[y][x] != 0
+            return self.maze_array[y][x] == 0
         else:
             # If out of bounds, treat as a wall to prevent errors
             return True
@@ -57,20 +49,19 @@ class Environment:
         circle = np.zeros((HEIGHT, WIDTH), dtype='uint8')
         circle = cv.circle(circle, (int(new_pos[0]), int(new_pos[1])), ROBOT_RADIUS, 255, -1)
 
-        inter = circle & self.maze_array       
+        inter = circle & self.inverted_maze_array       
         # print(f"Circle: {circle}")
         # print(f": {circle}") 
 
         coords = np.argwhere(inter != 0)
 
-        # print(self.maze_array)
         if coords.size == 0:
             return new_pos, False
 
         #check if the motion is outward
         circle_old = np.zeros((HEIGHT, WIDTH), dtype='uint8')
         circle_old = cv.circle(circle_old, (int(old_pos[0]), int(old_pos[1])), ROBOT_RADIUS, 255, -1)
-        inter_old = circle_old & self.maze_array
+        inter_old = circle_old & self.inverted_maze_array
 
         inter = inter.astype('bool')
         inter_old = inter_old.astype('bool')
@@ -95,7 +86,7 @@ class Environment:
         if take_snapshot:
             print(rng)
 
-            plt.imshow(self.maze_array ^ circle, cmap='gray')
+            plt.imshow(self.inverted_maze_array ^ circle, cmap='gray')
             plt.show()
 
         #return if any collision => full stop
@@ -137,10 +128,10 @@ class Environment:
 
         _, circle = cv.threshold(circle, 127, 255, cv.THRESH_BINARY_INV)
 
-        inter = line & (self.maze_array & circle)
+        inter = line & (self.inverted_maze_array & circle)
         
         if take_snapshot:
-            plt.imshow(self.maze_array ^ line, cmap='gray')
+            plt.imshow(self.inverted_maze_array ^ line, cmap='gray')
             plt.show()
         
         return np.sum(inter) > 0
@@ -241,128 +232,21 @@ class Environment:
         for id in self.current_selection:
             pygame.draw.line(screen, (0, 255, 0), self.last_robot_pos, self.landmarks[id].position)
     
-    def create_landmarks(self, name):
+    def create_landmarks(self, maze_id):
         """
         Initializes landmarks
 
         """
-        if name == 'maze':
-            pos = [[145,150],
-            [145,310],
-            [280,155],
-            [385,279],
-            [178,227],
-            [161,412],
-            [258,420],
-            [53,653],
-            [500,653],
-            [409,546],
-            [627,426],
-            [626,305],
-            [412,49],
-            [744,52],
-            [1226,51],
-            [1226,279],
-            [581,157],
-            [1006,185],
-            [1010,430],
-            [774,651],
-            [770,549]]
 
-        elif name == 'fourth_maze':
-            pos =[[44,57],
-            [44,202],
-            [44,297],
-            [134,298],
-            [134,434],
-            [44,432],
-            [41,438],
-            [44,649],
-            [199,654],
-            [363,651],
-            [363,479],
-            [387,357],
-            [387,283],
-            [490,284],
-            [490,355],
-            [566,481],
-            [566,648],
-            [720,654],
-            [720,604],
-            [843,604],
-            [843,649],
-            [710,216],
-            [710,57],
-            [868,212],
-            [868,56],
-            [1178,653],
-            [1178,488],
-            [1006,479],
-            [1006,326],
-            [1176,322],
-            [1178,57]]
-
-        elif name == 'third_maze':
-            pos = [[68,28],
-                [68,290],
-                [68,501],
-                [68,635],
-                [354,453],
-                [354,209],
-                [354,642],
-                [886,453],
-                [886,209],
-                [1204,639],
-                [1204,358],
-                [1204,28],
-                [634,209],
-                [636,26]]
-        
-        elif name == 'second_maze':
-            pos = [[48,42],
-                [48,193],
-                [584,197],
-                [584,248],
-                [48,252],
-                [48,443],
-                [48,663],
-                [158,491],
-                [158,360],
-                [323,364],
-                [323,489],
-                [1052,248],
-                [1052,166],
-                [1149,248],
-                [1149,168],
-                [555,665],
-                [560,505],
-                [560,439],
-                [889,665],
-                [1240,663],
-                [1240,508],
-                [1011,505],
-                [810,505],
-                [786,441],
-                [956,439],
-                [956,358],
-                [1240,357],
-                [1240,42],
-                [925,42],
-                [925,198],
-                [779,198],
-                [779,42],
-                [560,38]]
-
-
-
+        pos = LANDMARKS[maze_id - 1]
         #ids = [f"L{x}" for x in range(1, len(pos)+1)]
         ids = np.arange(len(pos))
-        landmarks = []
+        cur_landmarks = []
 
         for i, j in zip(ids, pos):
-            landmarks.append(self.Landmark(id=i, position=j))
+            cur_landmarks.append(self.Landmark(id=i, position=j))
             
-        return landmarks
+        return cur_landmarks
     
 if __name__ == "__main__":
             # print(env.maze_array)
