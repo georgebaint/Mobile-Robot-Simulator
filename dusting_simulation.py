@@ -31,10 +31,14 @@ class DustingSimulation:
 
     def run_ann(self, iter, ann):
         score = 0
+        collision_cnt = 0
         for i in tqdm(range(iter)):
             score += self.environment.suck(self.forward_kinematics.agent_pos)
 
             self.forward_kinematics.calculate_forward_kinematics()
+            if self.forward_kinematics.collision:
+                collision_cnt += 1
+
             self.agent.kalman_filter(self.forward_kinematics)
             distances = self.agent.run_sensors(self.screen)
             input = distances
@@ -46,8 +50,10 @@ class DustingSimulation:
             self.agent.left_motor_speed = spds[0]
             self.agent.right_motor_speed = spds[1]
 
-        max_score = self.environment.get_max_score() 
-        return (float(score) / float(max_score))
+        max_score = self.environment.get_max_score()
+        dust_rate = (float(score) / float(max_score))
+        collision_rate = float(collision_cnt) / float(iter) 
+        return 1 * dust_rate - 0.2 * collision_rate
 
     def evaluate(self, iter):
         change_counter = COUNTER_DROP
