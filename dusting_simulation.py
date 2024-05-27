@@ -8,12 +8,7 @@ import numpy as np
 import time
 from tqdm import tqdm
 
-WIDTH = 1280
-HEIGHT = 720
-FPS = 120
-ITER_COUNT = 1600
-COUNTER_DROP = 200
-MAZE_NUM = 2
+from settings import *
 
 class DustingSimulation:
     def __init__(self, maze_id, genotype=None, visualize=False):        
@@ -55,32 +50,53 @@ class DustingSimulation:
                 change_counter = COUNTER_DROP
             
             self.forward_kinematics.calculate_forward_kinematics()
+            self.agent.kalman_filter(self.forward_kinematics)
         
             if self.visualize:
                 self.agent.rect.center = self.forward_kinematics.agent_pos
 
                 self.screen.blit(self.maze_surface, (0,0))
+                self.environment.draw_landmarks(self.screen)
                 self.screen.blit(self.agent.image, self.agent.rect)
                 if prev_cc != [-1, -1]:
                     pygame.draw.circle(self.screen, 'green', (int(prev_cc.x), int(prev_cc.y)), self.agent.radius, 2)        
                 pygame.draw.circle(self.screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)), self.agent.radius, width=2)
+                
+                # Display the current wheel speeds
+                self.draw_text(self.screen, f"Left Wheel Speed: {self.agent.left_motor_speed:.2f}", (10, 10))
+                self.draw_text(self.screen, f"Right Wheel Speed: {self.agent.right_motor_speed:.2f}", (10, 40))
+
+                self.draw_text(self.screen, f"Real position {self.forward_kinematics.agent_pos[0]:.0f}, {self.forward_kinematics.agent_pos[1]:.0f}", (1000,570))
+                self.draw_text(self.screen, f"Real angle {self.forward_kinematics.agent_angle:.0f}", (1000,590))
+                self.draw_text(self.screen, f"Estimated position {self.agent.estimated_pos[0]:.0f}, {self.agent.estimated_pos[1]:.0f}", (1000,610))
+                self.draw_text(self.screen, f"Estimated angle {self.agent.estimated_angle:.0f}", (1000,630))
+                
                 pygame.display.update()
                 self.clock.tick(FPS)
         print(changes)
         return score
+    
+    def draw_text(self, screen, text, position, font_size=24, color='red'):
+        """
+        Draws text on the screen at the specified position.
+
+        Args:
+            screen (Surface): The Pygame surface where text will be drawn.
+            text (str): The text to be drawn.
+            position (tuple): The (x, y) position for the text on the screen.
+            font_size (int): The font size for the text.
+            color (str): The color of the text.
+        """
+        font = pygame.font.Font(None, font_size)  # None uses the default font, set font path for custom font
+        text_surface = font.render(text, True, color)  # True means anti-aliased text.
+        screen.blit(text_surface, position)
 
 if __name__ == '__main__':
-    sim = DustingSimulation(MAZE_NUM, None, True)
+    sim = DustingSimulation(MAZE_NUM, None, False)
     score = sim.evaluate(ITER_COUNT)
     print('final score %d' % (score))
 
 # TODO
-
-# check if positions, speeds, etc are all correct
-
-# make dust visualization with sucking on pressed key
-
-# connect the Kalman filter
 
 # prepare the training pipeline:
 

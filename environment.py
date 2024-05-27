@@ -26,7 +26,7 @@ class Environment:
         self.dust = np.ones((WIDTH, HEIGHT))
 
         self.landmarks = self.create_landmarks(maze_id)
-        self.landmark_radius = 5
+        self.landmark_radius = LANDMARK_RADIUS
         self.current_selection = []
         self.last_robot_pos = [ROBOT_START_X, ROBOT_START_Y]
 
