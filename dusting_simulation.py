@@ -11,8 +11,8 @@ from tqdm import tqdm
 WIDTH = 1280
 HEIGHT = 720
 FPS = 120
-ITER_COUNT = 1000
-COUNTER_DROP = 100
+ITER_COUNT = 1600
+COUNTER_DROP = 200
 MAZE_NUM = 2
 
 class DustingSimulation:
@@ -38,11 +38,16 @@ class DustingSimulation:
         change_counter = COUNTER_DROP
 
         score = 0
+        changes = []
+        poss = []
+        prev_cc = [-1, -1]
         for i in tqdm(range(iter)):
             change_counter -= 1
             if change_counter == 0:
                 score_change = self.environment.suck(self.forward_kinematics.agent_pos)
                 score += score_change
+                changes.append(score_change)
+                prev_cc = self.forward_kinematics.agent_pos
                 spd = [[1, 1], [-1, -1], [1, -1], [-1, 0], [0, 1]]
                 spd = np.array(spd)
                 np.random.shuffle(spd)
@@ -56,9 +61,12 @@ class DustingSimulation:
 
                 self.screen.blit(self.maze_surface, (0,0))
                 self.screen.blit(self.agent.image, self.agent.rect)
+                if prev_cc != [-1, -1]:
+                    pygame.draw.circle(self.screen, 'green', (int(prev_cc.x), int(prev_cc.y)), self.agent.radius, 2)        
                 pygame.draw.circle(self.screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)), self.agent.radius, width=2)
                 pygame.display.update()
                 self.clock.tick(FPS)
+        print(changes)
         return score
 
 if __name__ == '__main__':
@@ -68,9 +76,13 @@ if __name__ == '__main__':
 
 # TODO
 
-# check if everything works - output position, speed on both wheels
-# test amount of dust collected
+# check if positions, speeds, etc are all correct
+
+# make dust visualization with sucking on pressed key
+
 # connect the Kalman filter
+
+# prepare the training pipeline:
 
 # call sensors on each step
 # feed sensor data to ANN and reset the speed on the wheel

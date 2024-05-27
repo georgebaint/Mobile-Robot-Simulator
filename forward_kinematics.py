@@ -16,7 +16,6 @@ class ForwardKinematics:
         agent_pos (pygame.math.Vector2): The current position of the robot.
         agent_angle (float): The current orientation angle of the robot in degrees.
         environment (Environment): The simulated environment in which the robot operates.
-        landmarks (list): List of landmarks in the environment.
     """
     
     def __init__(self, agent, environment):
@@ -28,7 +27,6 @@ class ForwardKinematics:
         self.agent_pos = pygame.math.Vector2(ROBOT_START_X, ROBOT_START_Y)  # Starting position of the robot.
         self.agent_angle = 0  # Starting orientation of the robot.
         self.environment = environment
-        self.landmarks = environment.landmarks
 
     def calculate_forward_kinematics(self):
         """
