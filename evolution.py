@@ -3,13 +3,14 @@ import random
 from ann import Ann
 
 class Evolution:
-    def __init__(self, population_size):
+    def __init__(self, population_size, pair_prob, mutation_rate, mutation_strength):
         self.population_size = population_size
         self.genotype_length = 14 * 7 + 7 * 2 # Input * hidden layer + hidden layer * output
         self.genotypes_list = self.initialize_genotypes()
-        # self.map = map
-        # self.robot = robot
         self.fitness_list = []
+        self.pair_prob = pair_prob
+        self.mutation_rate = mutation_rate
+        self.mutation_strength = mutation_strength
 
     def initialize_genotypes(self):
         # Initialize with random values for each genotype of defined length
@@ -49,50 +50,56 @@ class Evolution:
         else:
             raise Exception('Mismatch in population sizes after selection')
 
-    def crossover(self, pair_prob):
+    def crossover(self,):
         for parent in range(1, self.population_size):
-            if random.random() < pair_prob:
+            if random.random() < self.pair_prob:
                 # Crossover occurs by averaging parent genotypes
                 self.genotypes_list[parent] = (self.genotypes_list[parent] + self.genotypes_list[parent-1]) / 2
                 
-    def mutation(self, mutation_rate, mutation_strength):
+    def mutation(self,):
         for genotype in self.genotypes_list:
             for gene_idx in range(self.genotype_length):
-                if random.random() < mutation_rate:
-                    genotype[gene_idx] += np.random.normal(loc=0.0,scale=mutation_strength)
+                if random.random() < self.mutation_rate:
+                    genotype[gene_idx] += np.random.normal(loc=0.0,scale=self.mutation_strength)
 
-if __name__ == "__main__":
+    def evolve(self,):
+        # Selection is called in reproduction
+        self.reproduction()  # Reproduce the current population (basically replacement by selection)
+        self.crossover()  # Apply crossover
+        self.mutation()  # Apply mutations
+
+# if __name__ == "__main__":
     
-    # map = []
-    # robot = []
-    population_size = 50  # Number of individuals in the population
+#     # map = []
+#     # robot = []
+#     population_size = 50  # Number of individuals in the population
 
-    evolution = Evolution(population_size)
+#     evolution = Evolution(population_size)
 
-    num_generations = 10 # number of epochs
+#     num_generations = 10 # number of epochs
 
-    for _ in range(num_generations): 
-        fitness_list = []
-        for i in range(population_size):
-            ann = Ann(evolution.genotypes_list[i])
-            prev_speed = [0,0] # maybe np.array([0,0])
+#     for _ in range(num_generations): 
+#         fitness_list = []
+#         for i in range(population_size):
+#             ann = Ann(evolution.genotypes_list[i])
+#             prev_speed = [0,0] # maybe np.array([0,0])
 
-            for j in range(number_of_timesteps): # Basically our simulation 
-                sensor_info = ...
-                input = np.concatenate((sensor_info, prev_speed))
-                output = ann.calculate_output(input)
-                prev_speed = output
+#             for j in range(number_of_timesteps): # Basically our simulation 
+#                 sensor_info = ...
+#                 input = np.concatenate((sensor_info, prev_speed))
+#                 output = ann.calculate_output(input)
+#                 prev_speed = output
 
-            fitness_list.append(calculate_fitness_function)
+#             fitness_list.append(calculate_fitness_function)
         
-        evolution.fitness_list = fitness_list
+#         evolution.fitness_list = fitness_list
 
-        # Here we assess the results based on the elements in the evolution fitness_list
+#         # Here we assess the results based on the elements in the evolution fitness_list
 
-        # After we initialize the evolution of our population (this population will be simulated on the next epoch)
+#         # After we initialize the evolution of our population (this population will be simulated on the next epoch)
 
-        evolution.reproduction()  # Reproduce the current population (basically replacement by selection)
-        evolution.crossover(pair_prob=0.2)  # Apply crossover
-        evolution.mutation(mutation_rate=0.01, mutation_strength=0.1)  # Apply mutations
+#         evolution.reproduction()  # Reproduce the current population (basically replacement by selection)
+#         evolution.crossover(pair_prob=0.2)  # Apply crossover
+#         evolution.mutation(mutation_rate=0.01, mutation_strength=0.1)  # Apply mutations
         
 
