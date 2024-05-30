@@ -47,7 +47,8 @@ class Agent:
                 screen (Surface): The Pygame screen surface to draw sensor beams.
             """
             num_sensors = 12
-            max_sensor_length = 200
+            max_sensor_length = MAX_SENSOR_LENGTH
+            # TEST TEST TEST
             tab20 = plt.get_cmap("tab20").colors  # Color map for sensor visualization.
             if VISUALIZE:
                 font = pygame.font.Font(None, 24)
