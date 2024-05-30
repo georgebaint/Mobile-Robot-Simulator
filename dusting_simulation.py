@@ -35,6 +35,8 @@ class DustingSimulation:
         max_score = self.environment.get_max_score()
 
         for i in tqdm(range(iter)):
+            if VISUALIZE:
+                self.screen.blit(self.maze_surface, (0,0))
             score += self.environment.suck(self.forward_kinematics.agent_pos)
 
             self.forward_kinematics.calculate_forward_kinematics()
@@ -60,7 +62,6 @@ class DustingSimulation:
 
         
             if VISUALIZE:
-                self.screen.blit(self.maze_surface, (0,0))
                 self.agent.rect.center = self.forward_kinematics.agent_pos
 
                 self.environment.draw_landmarks(self.screen)
@@ -73,13 +74,13 @@ class DustingSimulation:
                 self.draw_text(self.screen, f"Left Wheel Speed: {self.agent.left_motor_speed:.2f}", (10, 10))
                 self.draw_text(self.screen, f"Right Wheel Speed: {self.agent.right_motor_speed:.2f}", (10, 40))
 
-                self.draw_text(self.screen, f"Real position {self.forward_kinematics.agent_pos[0]:.0f}, {self.forward_kinematics.agent_pos[1]:.0f}", (1000,570))
-                self.draw_text(self.screen, f"Real angle {self.forward_kinematics.agent_angle:.0f}", (1000,590))
-                self.draw_text(self.screen, f"Estimated position {self.agent.estimated_pos[0]:.0f}, {self.agent.estimated_pos[1]:.0f}", (1000,610))
-                self.draw_text(self.screen, f"Estimated angle {self.agent.estimated_angle:.0f}", (1000,630))
-
                 self.draw_text(self.screen, f"Dust cleared: {(float(score) / float(max_score) * 100):.2f}%", (1000,530))
                 self.draw_text(self.screen, f"Collision rate : {float(collision_cnt) / float(iter) * 100:.2f}%", (1000,550))
+
+                self.draw_text(self.screen, f"Real position {self.forward_kinematics.agent_pos[0]:.0f}, {self.forward_kinematics.agent_pos[1]:.0f}", (1000,570))
+                self.draw_text(self.screen, f"Real angle {self.forward_kinematics.agent_angle:.0f}", (1000,590))
+                # self.draw_text(self.screen, f"Estimated position {self.agent.estimated_pos[0]:.0f}, {self.agent.estimated_pos[1]:.0f}", (1000,610))
+                # self.draw_text(self.screen, f"Estimated angle {self.agent.estimated_angle:.0f}", (1000,630))
 
                 
                 pygame.display.update()
@@ -87,7 +88,7 @@ class DustingSimulation:
 
         dust_rate = (float(score) / float(max_score))
         collision_rate = float(collision_cnt) / float(iter) 
-        return 1 * dust_rate - 0.2 * collision_rate
+        return max(0, 1 * dust_rate - 0.1 * collision_rate)
 
     def evaluate(self, iter):
         change_counter = COUNTER_DROP
@@ -131,8 +132,8 @@ class DustingSimulation:
 
                 self.draw_text(self.screen, f"Real position {self.forward_kinematics.agent_pos[0]:.0f}, {self.forward_kinematics.agent_pos[1]:.0f}", (1000,570))
                 self.draw_text(self.screen, f"Real angle {self.forward_kinematics.agent_angle:.0f}", (1000,590))
-                self.draw_text(self.screen, f"Estimated position {self.agent.estimated_pos[0]:.0f}, {self.agent.estimated_pos[1]:.0f}", (1000,610))
-                self.draw_text(self.screen, f"Estimated angle {self.agent.estimated_angle:.0f}", (1000,630))
+                # self.draw_text(self.screen, f"Estimated position {self.agent.estimated_pos[0]:.0f}, {self.agent.estimated_pos[1]:.0f}", (1000,610))
+                # self.draw_text(self.screen, f"Estimated angle {self.agent.estimated_angle:.0f}", (1000,630))
                 
                 pygame.display.update()
                 self.clock.tick(FPS)

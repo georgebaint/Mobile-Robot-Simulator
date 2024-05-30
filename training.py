@@ -5,9 +5,9 @@ from ann import Ann
 from dusting_simulation import DustingSimulation
 from settings import MAZE_NUM, ITER_COUNT
 
-generations = 5
-population_size = 20
-evolution = Evolution(population_size, pair_prob=0.2, mutation_rate=0.01, mutation_strength=0.1)
+generations = 20
+population_size = 60
+evolution = Evolution(population_size, pair_prob=0.5, mutation_rate=0.05, mutation_strength=0.1)
 
 best_genotypes = []
 fitness_history = []

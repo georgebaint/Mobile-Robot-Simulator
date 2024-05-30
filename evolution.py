@@ -14,10 +14,7 @@ class Evolution:
 
     def initialize_genotypes(self):
         # Initialize with random values for each genotype of defined length
-        # input_dim = 14
-        # output_dim = 2
-        # limit = np.sqrt(6 / (input_dim + output_dim))
-        # # return [np.random.uniform(-limit, limit, size=self.genotype_length) for _ in range(self.genotype_length)]
+
         return [np.random.normal(loc=0.0, scale=0.5, size=self.genotype_length) for _ in range(self.population_size)]
     
     def selection(self):
@@ -26,19 +23,6 @@ class Evolution:
 
         def create_roulette_wheel(genotypes, probabilities):
             # # Calculate cumulative probabilities
-            # cumulative_probabilities = []
-            # current_sum = 0
-            # for p in probabilities:
-            #     current_sum += p
-            #     cumulative_probabilities.append(current_sum)
-
-            # r = random.random()
-            # # Find the first index where the cumulative probability is greater than the random number
-            # for i, cp in enumerate(cumulative_probabilities):
-            #     if r < cp:
-            #         return genotypes[i]
-            # return genotypes[-1]
-        
             cumulative_probabilities = np.cumsum(probabilities)
             r = random.random()
             idx = np.searchsorted(cumulative_probabilities, r)
@@ -78,39 +62,3 @@ class Evolution:
         self.reproduction()  # Reproduce the current population (basically replacement by selection)
         self.crossover()  # Apply crossover
         self.mutation()  # Apply mutations
-
-# if __name__ == "__main__":
-    
-#     # map = []
-#     # robot = []
-#     population_size = 50  # Number of individuals in the population
-
-#     evolution = Evolution(population_size)
-
-#     num_generations = 10 # number of epochs
-
-#     for _ in range(num_generations): 
-#         fitness_list = []
-#         for i in range(population_size):
-#             ann = Ann(evolution.genotypes_list[i])
-#             prev_speed = [0,0] # maybe np.array([0,0])
-
-#             for j in range(number_of_timesteps): # Basically our simulation 
-#                 sensor_info = ...
-#                 input = np.concatenate((sensor_info, prev_speed))
-#                 output = ann.calculate_output(input)
-#                 prev_speed = output
-
-#             fitness_list.append(calculate_fitness_function)
-        
-#         evolution.fitness_list = fitness_list
-
-#         # Here we assess the results based on the elements in the evolution fitness_list
-
-#         # After we initialize the evolution of our population (this population will be simulated on the next epoch)
-
-#         evolution.reproduction()  # Reproduce the current population (basically replacement by selection)
-#         evolution.crossover(pair_prob=0.2)  # Apply crossover
-#         evolution.mutation(mutation_rate=0.01, mutation_strength=0.1)  # Apply mutations
-        
-
