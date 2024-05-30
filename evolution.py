@@ -14,31 +14,35 @@ class Evolution:
 
     def initialize_genotypes(self):
         # Initialize with random values for each genotype of defined length
-        return [np.random.normal(loc=0.0, scale=0.01, size=self.genotype_length) for _ in range(self.population_size)]
+        # input_dim = 14
+        # output_dim = 2
+        # limit = np.sqrt(6 / (input_dim + output_dim))
+        # # return [np.random.uniform(-limit, limit, size=self.genotype_length) for _ in range(self.genotype_length)]
+        return [np.random.normal(loc=0.0, scale=0.5, size=self.genotype_length) for _ in range(self.population_size)]
     
     def selection(self):
         total_fitness = sum(self.fitness_list)
         probabilities = [fitness / total_fitness for fitness in self.fitness_list]
 
         def create_roulette_wheel(genotypes, probabilities):
-            # Calculate cumulative probabilities
-            cumulative_probabilities = []
-            current_sum = 0
-            for p in probabilities:
-                current_sum += p
-                cumulative_probabilities.append(current_sum)
+            # # Calculate cumulative probabilities
+            # cumulative_probabilities = []
+            # current_sum = 0
+            # for p in probabilities:
+            #     current_sum += p
+            #     cumulative_probabilities.append(current_sum)
 
-            r = random.random()
-            # Find the first index where the cumulative probability is greater than the random number
-            for i, cp in enumerate(cumulative_probabilities):
-                if r < cp:
-                    return genotypes[i]
-            return genotypes[-1]
-        
-            # cumulative_probabilities = np.cumsum(probabilities)
             # r = random.random()
-            # idx = np.searchsorted(cumulative_probabilities, r)
-            # return genotypes[idx]
+            # # Find the first index where the cumulative probability is greater than the random number
+            # for i, cp in enumerate(cumulative_probabilities):
+            #     if r < cp:
+            #         return genotypes[i]
+            # return genotypes[-1]
+        
+            cumulative_probabilities = np.cumsum(probabilities)
+            r = random.random()
+            idx = np.searchsorted(cumulative_probabilities, r)
+            return genotypes[idx]
 
         selected_genotypes = [create_roulette_wheel(self.genotypes_list, probabilities) for _ in range(self.population_size)]
         return selected_genotypes
@@ -50,11 +54,18 @@ class Evolution:
         else:
             raise Exception('Mismatch in population sizes after selection')
 
-    def crossover(self,):
-        for parent in range(1, self.population_size):
+    def crossover(self):
+        new_population = self.genotypes_list.copy()  # Create a copy to avoid modifying the list in-place
+        for parent in range(self.population_size):
             if random.random() < self.pair_prob:
+                # Selecting other_parent different from parent
+                other_parent = random.randint(0, self.population_size - 1)
+                while other_parent == parent:
+                    other_parent = random.randint(0, self.population_size - 1)
                 # Crossover occurs by averaging parent genotypes
-                self.genotypes_list[parent] = (self.genotypes_list[parent] + self.genotypes_list[parent-1]) / 2
+                new_population[parent] = (self.genotypes_list[parent] + self.genotypes_list[other_parent]) / 2
+
+        self.genotypes_list = new_population
                 
     def mutation(self,):
         for genotype in self.genotypes_list:

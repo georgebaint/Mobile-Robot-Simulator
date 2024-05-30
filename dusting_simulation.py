@@ -32,6 +32,8 @@ class DustingSimulation:
     def run_ann(self, iter, ann):
         score = 0
         collision_cnt = 0
+        max_score = self.environment.get_max_score()
+
         for i in tqdm(range(iter)):
             score += self.environment.suck(self.forward_kinematics.agent_pos)
 
@@ -39,18 +41,50 @@ class DustingSimulation:
             if self.forward_kinematics.collision:
                 collision_cnt += 1
 
-            self.agent.kalman_filter(self.forward_kinematics)
+            # self.agent.kalman_filter(self.forward_kinematics)
+            # Next two lines replace kalman filter output with real position
+            self.agent.estimated_pos = self.forward_kinematics.agent_pos
+            self.agent.estimated_angle = self.forward_kinematics.agent_angle
+
             distances = self.agent.run_sensors(self.screen)
-            input = distances
+            input = [i / MAX_SENSOR_LENGTH for i in distances]
+            # print("input = ", input)
 
-            input.append(self.agent.left_motor_speed) 
-            input.append(self.agent.right_motor_speed)
+            input.append(self.agent.left_motor_speed / ROBOT_MAX_SPEED) 
+            input.append(self.agent.right_motor_speed / ROBOT_MAX_SPEED)
 
-            spds = ann.calculate_output(distances)
-            self.agent.left_motor_speed = spds[0]
-            self.agent.right_motor_speed = spds[1]
+            spds = ann.calculate_output(input)
 
-        max_score = self.environment.get_max_score()
+            self.agent.left_motor_speed = spds[0] * ROBOT_MAX_SPEED
+            self.agent.right_motor_speed = spds[1] *  ROBOT_MAX_SPEED
+
+        
+            if VISUALIZE:
+                self.screen.blit(self.maze_surface, (0,0))
+                self.agent.rect.center = self.forward_kinematics.agent_pos
+
+                self.environment.draw_landmarks(self.screen)
+                self.screen.blit(self.agent.image, self.agent.rect)
+                # if prev_cc != [-1, -1]:
+                #     pygame.draw.circle(self.screen, 'green', (int(prev_cc.x), int(prev_cc.y)), self.agent.radius, 2)        
+                pygame.draw.circle(self.screen, ('blue' if not self.agent.collision else 'yellow'), (int(self.forward_kinematics.agent_pos.x), int(self.forward_kinematics.agent_pos.y)), self.agent.radius, width=2)
+                
+                # Display the current wheel speeds
+                self.draw_text(self.screen, f"Left Wheel Speed: {self.agent.left_motor_speed:.2f}", (10, 10))
+                self.draw_text(self.screen, f"Right Wheel Speed: {self.agent.right_motor_speed:.2f}", (10, 40))
+
+                self.draw_text(self.screen, f"Real position {self.forward_kinematics.agent_pos[0]:.0f}, {self.forward_kinematics.agent_pos[1]:.0f}", (1000,570))
+                self.draw_text(self.screen, f"Real angle {self.forward_kinematics.agent_angle:.0f}", (1000,590))
+                self.draw_text(self.screen, f"Estimated position {self.agent.estimated_pos[0]:.0f}, {self.agent.estimated_pos[1]:.0f}", (1000,610))
+                self.draw_text(self.screen, f"Estimated angle {self.agent.estimated_angle:.0f}", (1000,630))
+
+                self.draw_text(self.screen, f"Dust cleared: {(float(score) / float(max_score) * 100):.2f}%", (1000,530))
+                self.draw_text(self.screen, f"Collision rate : {float(collision_cnt) / float(iter) * 100:.2f}%", (1000,550))
+
+                
+                pygame.display.update()
+                self.clock.tick(FPS)
+
         dust_rate = (float(score) / float(max_score))
         collision_rate = float(collision_cnt) / float(iter) 
         return 1 * dust_rate - 0.2 * collision_rate

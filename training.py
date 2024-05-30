@@ -5,8 +5,8 @@ from ann import Ann
 from dusting_simulation import DustingSimulation
 from settings import MAZE_NUM, ITER_COUNT
 
-generations = 2
-population_size = 3
+generations = 5
+population_size = 20
 evolution = Evolution(population_size, pair_prob=0.2, mutation_rate=0.01, mutation_strength=0.1)
 
 best_genotypes = []
@@ -26,8 +26,10 @@ for gen in range(generations):
     best_subject = 0
 
     for subject in range(population_size):
+        print('Individual %d / %d' % (subject+1, population_size))
+
         ann = Ann(evolution.genotypes_list[subject])
-        sim = DustingSimulation(maze_id=2)
+        sim = DustingSimulation(maze_id=MAZE_NUM)
         score = sim.run_ann(ITER_COUNT, ann)
 
         current_generation_fitness_list.append(score)

@@ -5,7 +5,7 @@ class Ann:
         self.weights1, self.weights2 = self.extract_elements(genotypes)
         # self.weights2 = weights2
         # self.genotypes = genotypes
-        self.prev_output = [0, 0]
+        # self.prev_output = [0, 0]
     
     def extract_elements(self, genotypes):
         all_first_seven = []
@@ -15,7 +15,7 @@ class Ann:
         for i in range(14):
             first_seven = genotypes[i*7:(i*7)+7]  # Get 7 elements starting at index i*7
             all_first_seven.append(first_seven)  
-            # print(f"Iteration {i+1}, first 7 values: {first_seven}")
+            #print(f"Iteration {i+1}, first 7 values: {first_seven}")
 
         # Calculate the start index for the second part
         start_index = 14 * 7  # 14 iterations, each taking 7 elements
@@ -24,7 +24,7 @@ class Ann:
         for j in range(7):
             two_values = genotypes[start_index + j*2:start_index + (j*2) + 2]  # Get 2 elements starting at calculated start_index
             all_two_values.append(two_values)  
-            # print(f"Iteration {j+1}, 2 values: {two_values}")
+            #print(f"Iteration {j+1}, 2 values: {two_values}")
 
         first_seven_array = np.array(all_first_seven)
         two_values_array = np.array(all_two_values)
@@ -46,13 +46,18 @@ class Ann:
 
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
+    
+    def tanh(self, x):
+        return np.tanh(x)
 
     def feedforward(self, inputs):
         """
         Forward propagation through the network.
         """
-        self.layer1 = self.sigmoid(np.dot(inputs, self.weights1))
-        self.output = self.sigmoid(np.dot(self.layer1, self.weights2))
+        # self.layer1 = self.sigmoid(np.dot(inputs, self.weights1))
+        # self.output = self.sigmoid(np.dot(self.layer1, self.weights2))
+        self.layer1 = self.relu(np.dot(inputs, self.weights1))
+        self.output = self.tanh(np.dot(self.layer1, self.weights2))
         return self.output
 
     def calculate_output(self, inputs):

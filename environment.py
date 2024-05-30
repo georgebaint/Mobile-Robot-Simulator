@@ -262,7 +262,7 @@ class Environment:
 
         """
 
-        pos = LANDMARKS[maze_id - 1]
+        pos = LANDMARKS[maze_id]
         #ids = [f"L{x}" for x in range(1, len(pos)+1)]
         ids = np.arange(len(pos))
         cur_landmarks = []
