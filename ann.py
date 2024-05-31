@@ -3,9 +3,7 @@ import numpy as np
 class Ann:
     def __init__(self, genotypes):
         self.weights1, self.weights2 = self.extract_elements(genotypes)
-        # self.weights2 = weights2
-        # self.genotypes = genotypes
-        # self.prev_output = [0, 0]
+
     
     def extract_elements(self, genotypes):
         all_first_seven = []
@@ -31,31 +29,29 @@ class Ann:
         
         return first_seven_array, two_values_array
 
-    # def create_weights(self, size1, size2):
-    #     weights = np.random.normal(0.0, 0.01, (size1, size2))
-    #     return weights
     
     def relu(self, Z):
-
         """
         Implementation of the relu activation function
-        :param Z: Tne value of the neuron
-        :return: 0 if the neuron is turned off, Z otherwise
         """
         return np.maximum(0, Z)
 
     def sigmoid(self, x):
+        """
+        Implementation of the sigmoid activation function
+        """
         return 1 / (1 + np.exp(-x))
     
     def tanh(self, x):
+        """
+        Implementation of the tanh activation function
+        """
         return np.tanh(x)
 
     def feedforward(self, inputs):
         """
         Forward propagation through the network.
         """
-        # self.layer1 = self.sigmoid(np.dot(inputs, self.weights1))
-        # self.output = self.sigmoid(np.dot(self.layer1, self.weights2))
         self.layer1 = self.relu(np.dot(inputs, self.weights1))
         self.output = self.tanh(np.dot(self.layer1, self.weights2))
         return self.output
@@ -66,16 +62,16 @@ class Ann:
         """
         return self.feedforward(np.asarray(inputs))
     
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
-    genotypes = []
-    for i in range(112):
-        genotypes.append(i)
-    #Testing the output
-    # Instantiating the Ann class with placeholders for 'layers' and 'genotypes'
-    ann = Ann(genotypes)
+#     genotypes = []
+#     for i in range(112):
+#         genotypes.append(i)
+#     #Testing the output
+#     # Instantiating the Ann class with placeholders for 'layers' and 'genotypes'
+#     ann = Ann(genotypes)
     
-    # Ensuring the input has the correct dimension (14 elements)
-    inputs = np.array([20, 10, 15, 30, 40, 60, 50, 55, 5, 80, 90, 23, 0, 0])  # Added two zeros to match the input size
-    prediction = ann.calculate_output(inputs)
-    print("Prediction:", prediction)
+#     # Ensuring the input has the correct dimension (14 elements)
+#     inputs = np.array([20, 10, 15, 30, 40, 60, 50, 55, 5, 80, 90, 23, 0, 0])  # Added two zeros to match the input size
+#     prediction = ann.calculate_output(inputs)
+#     print("Prediction:", prediction)

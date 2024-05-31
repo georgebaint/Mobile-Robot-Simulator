@@ -1,4 +1,4 @@
-LANDMARKS = [None] * 4
+LANDMARKS = [None] * 5
 
 #LANDMARKS[ID] - landmarks for the maze number (ID) (they are sorted now)
 
@@ -19,7 +19,7 @@ LANDMARKS[0] = [
     [636,26]
 ]
 
-LANDMARKS[3] = [
+LANDMARKS[4] = [
     [145,150],
     [145,310],
     [280,155],
@@ -112,4 +112,8 @@ LANDMARKS[1] = [
     [1006,326],
     [1176,322],
     [1178,57]
+]
+
+LANDMARKS[3] = [
+    
 ]
